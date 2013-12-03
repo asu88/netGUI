@@ -20,55 +20,39 @@
  *  
  */
 
-
-
-import java.awt.*;
-import java.awt.Dimension;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
-import java.util.*;
-
-import javax.swing.*;
-
-import edu.umd.cs.piccolo.*;
-import edu.umd.cs.piccolo.PCanvas;
-import edu.umd.cs.piccolo.nodes.*;
-import edu.umd.cs.piccolox.*;
-import edu.umd.cs.piccolox.nodes.*;
 import edu.umd.cs.piccolo.event.*;
-import edu.umd.cs.piccolo.util.*;
+import java.awt.event.MouseEvent;
 
-public class DeleteConnectionEventHandler extends PBasicInputEventHandler
-{
-	private LayersHandler handler;
-	
-	public DeleteConnectionEventHandler (LayersHandler lHandler)
-	{
-		super();
-		handler = lHandler;
-	}
-	
-	public void mouseClicked (PInputEvent e)
-	{
-		super.mouseClicked(e);
-		if (e.getButton() == MouseEvent.BUTTON1)
-				handler.deleteConnection((NKConection)e.getPickedNode());			
-	}
-	
-	public void mouseEntered(PInputEvent e) 
-	{
-		super.mouseEntered(e);
-		if (e.getButton() == MouseEvent.NOBUTTON) {
-				((NKConection)e.getPickedNode()).setDeletePaint();
-			}
-	}
-	
-	public void mouseExited(PInputEvent e)
-		{
-			super.mouseExited(e);
-			if (e.getButton() == MouseEvent.NOBUTTON) {
-				((NKConection)e.getPickedNode()).setNormalPaint();
-			}
-		}
+public class DeleteConnectionEventHandler extends PBasicInputEventHandler {
+
+    private LayersHandler handler;
+
+    public DeleteConnectionEventHandler(LayersHandler lHandler) {
+        super();
+        handler = lHandler;
+    }
+
+    @Override
+    public void mouseClicked(PInputEvent e) {
+        super.mouseClicked(e);
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            handler.deleteConnection((NKConection) e.getPickedNode());
+        }
+    }
+
+    @Override
+    public void mouseEntered(PInputEvent e) {
+        super.mouseEntered(e);
+        if (e.getButton() == MouseEvent.NOBUTTON) {
+            ((NKConection) e.getPickedNode()).setDeletePaint();
+        }
+    }
+
+    @Override
+    public void mouseExited(PInputEvent e) {
+        super.mouseExited(e);
+        if (e.getButton() == MouseEvent.NOBUTTON) {
+            ((NKConection) e.getPickedNode()).setNormalPaint();
+        }
+    }
 }

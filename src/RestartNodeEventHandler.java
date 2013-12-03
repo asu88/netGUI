@@ -20,77 +20,41 @@
  *  
  */
 
-
-import java.io.*;
-
-import java.awt.*;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
-import java.util.*;
-
-import javax.swing.*;
-
-import edu.umd.cs.piccolo.*;
-import edu.umd.cs.piccolo.PCanvas;
-import edu.umd.cs.piccolo.nodes.*;
-import edu.umd.cs.piccolox.*;
-import edu.umd.cs.piccolox.nodes.*;
 import edu.umd.cs.piccolo.event.*;
-import edu.umd.cs.piccolo.util.*;
+import java.awt.event.MouseEvent;
 
-public class RestartNodeEventHandler extends PBasicInputEventHandler
-{
-	private LayersHandler handler;
-	
-	public RestartNodeEventHandler (LayersHandler lHandler)
-		{
-                    super();
-                    handler = lHandler;
+public class RestartNodeEventHandler extends PBasicInputEventHandler {
 
-		}
-	
+    private LayersHandler handler;
 
+    public RestartNodeEventHandler(LayersHandler lHandler) {
+        super();
+        handler = lHandler;
+    }
 
-	public void mouseClicked (PInputEvent e)
-		{
-			//Process proc;
-                        String cmd="";
-			NKSystem device;
-			super.mouseClicked(e);
+    @Override
+    public void mouseClicked(PInputEvent e) {
+        //Process proc;
+        String cmd = "";
+        NKSystem device;
+        super.mouseClicked(e);
 
-			if (e.getButton() == MouseEvent.BUTTON1) {
-				if (e.getPickedNode() instanceof NKSystem) {
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            if (e.getPickedNode() instanceof NKSystem) {
+                device = (NKSystem) e.getPickedNode();
+                try {
+                    cmd = "clean-vm.sh " + device.getName();
+                    Runtime.getRuntime().exec(cmd, null);
 
-                                        device = (NKSystem)e.getPickedNode();
+                    device.setStarted(false);
+                    device.updateNormalImages();
+                    RestartNodeThread restart = new RestartNodeThread(cmd, device);
+                    restart.start();
 
-                                        try {
-                                            //cmd = "vhalt " + device.getName();
-					    //Runtime.getRuntime().exec(cmd, null);
-
-                                            cmd = "clean-vm.sh " + device.getName();
-					    Runtime.getRuntime().exec(cmd, null);
-
-					    device.setStarted(false);
-					    device.updateNormalImages();
-
-
-                                            // Hay que esperar para que no se mate la nueva
-					    // instancia de la maquina que se esta arrancando
-                                            System.out.println("Aborting r1");
-                                            System.out.println("Waiting 5s for restart "
-                                                               +  device.getName() + " ...");
-					    Thread.sleep(5000);
-
-
-                                            System.out.println("Restarting " + device.getName());
-					    device.startNetKit();
-
-
-					} catch (Exception ex)
-                                		{System.out.println("Error " + ex);}
-				}
-			}
-		}
-			
+                } catch (Exception ex) {
+                    System.out.println("Error " + ex);
+                }
+            }
+        }
+    }
 }

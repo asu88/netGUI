@@ -21,124 +21,115 @@
  */
 
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.*;
 
 import java.io.*;
 
 public class WorkSpace {
-	
+
     private static Component c;
 
-    public static File askForWorkSpace (Component cp)
-    {
-	c = cp;
-	String workDir;
+    public static File askForWorkSpace(Component cp) {
+        c = cp;
+        String workDir;
 
-	File f;
-	do
-	    {
-		do 
-		    {
-			workDir = exploreDirectories ("Open");
-		    }while (workDir == null);
+        File f;
+        do {
+            do {
+                workDir = exploreDirectories("Open");
+            } while (workDir == null);
 
-		f = checkWorkDirectory(workDir);
+            f = checkWorkDirectory(workDir);
 
-	    }while (f==null);
-    	
-    	return f;
-    	
+        } while (f == null);
+
+        return f;
+
     }
 
-    private static String workSpaceAsk ()
-    {
-	String workDir;
-	String msg="You must type a working directory\n" +
-	    "before editing a network with NetGUI.";
-	do
-	    {
-		workDir = (String)JOptionPane.showInputDialog(
-							      c,
-							      msg,
-							      "NetGUI WorkSpace",
-							      JOptionPane.INFORMATION_MESSAGE,
-							      new ImageIcon(System.getProperty("NETLAB_HOME")+"/images/48x48/directory.png"),
-							      null,
-							      null);
-		if (workDir==null)
-		    workDir = exploreDirectories("Open");
-	    }while (workDir==null || workDir.equalsIgnoreCase(""));
-  	  
-	return workDir;
-    }
-	
-    public static String saveDirectories (String title, String button)
-    {
-    	JFileChooser fc = new JFileChooser();
-    	fc.setDialogTitle(title);
-    	//fc.addChoosableFileFilter(new NKProjectFilter());
-    	fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-	fc.setAcceptAllFileFilterUsed(false);
-	UIManager.put("FileChooser.fileNameLabelText", "Enter a new directory for the project:");
-	SwingUtilities.updateComponentTreeUI(fc);
-	int returnVal = fc.showDialog(c, button);
-	if (returnVal == JFileChooser.APPROVE_OPTION)
-	    return fc.getSelectedFile().toString();
-	else 
-	    return null;
-    }
-    
-    public static String exploreDirectories (String label)
-    {
-    	JFileChooser fc = new JFileChooser();
-    	fc.setDialogTitle("Choose project directory");
-    	//fc.addChoosableFileFilter(new NKProjectFilter());
-    	fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-	fc.setAcceptAllFileFilterUsed(false);
-	//	int returnVal = fc.showOpenDialog(c);
-	UIManager.put("FileChooser.fileNameLabelText", "Enter project directory:");
-	SwingUtilities.updateComponentTreeUI(fc);
-	int returnVal = fc.showDialog(c, label);
-	if (returnVal == JFileChooser.APPROVE_OPTION)
-	    return fc.getSelectedFile().toString();
-	else 
-	    return null;
+    private static String workSpaceAsk() {
+        String workDir;
+        String msg = "You must type a working directory\n"
+                + "before editing a network with NetGUI.";
+        do {
+            workDir = (String) JOptionPane.showInputDialog(
+                    c,
+                    msg,
+                    "NetGUI WorkSpace",
+                    JOptionPane.INFORMATION_MESSAGE,
+                    new ImageIcon(System.getProperty("NETLAB_HOME") + "/images/48x48/directory.png"),
+                    null,
+                    null);
+            if (workDir == null) {
+                workDir = exploreDirectories("Open");
+            }
+        } while (workDir == null || workDir.equalsIgnoreCase(""));
+
+        return workDir;
     }
 
-    private static File checkWorkDirectory (String workDir)
-    {
-    	File d = new File (workDir);
+    public static String saveDirectories(String title, String button) {
+        JFileChooser fc = new JFileChooser();
+        fc.setDialogTitle(title);
+        //fc.addChoosableFileFilter(new NKProjectFilter());
+        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fc.setAcceptAllFileFilterUsed(false);
+        UIManager.put("FileChooser.fileNameLabelText", "Enter a new directory for the project:");
+        SwingUtilities.updateComponentTreeUI(fc);
+        int returnVal = fc.showDialog(c, button);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            return fc.getSelectedFile().toString();
+        } else {
+            return null;
+        }
+    }
 
-	if (!d.exists())
-	    {
-    		if (createWorkDirQuestion(d))
-		    return d;
-    		else return null;
-	    }
-    	return d;
+    public static String exploreDirectories(String label) {
+        JFileChooser fc = new JFileChooser();
+        fc.setDialogTitle("Choose project directory");
+        //fc.addChoosableFileFilter(new NKProjectFilter());
+        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fc.setAcceptAllFileFilterUsed(false);
+        //	int returnVal = fc.showOpenDialog(c);
+        UIManager.put("FileChooser.fileNameLabelText", "Enter project directory:");
+        SwingUtilities.updateComponentTreeUI(fc);
+        int returnVal = fc.showDialog(c, label);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            return fc.getSelectedFile().toString();
+        } else {
+            return null;
+        }
     }
-    
-    private static boolean createWorkDirQuestion (File f)
-    {
-    	boolean created = false;
-    	String msg="There is no NetGUI project at specified directory.\nDo you want to create it?";
-    	Object[] options = {"create dir", "cancel"};
-    	int n = JOptionPane.showOptionDialog(c,
-					     msg,
-					     "New project",
-					     JOptionPane.YES_NO_OPTION,
-					     JOptionPane.QUESTION_MESSAGE,
-					     new ImageIcon(System.getProperty("NETLAB_HOME")+"/images/48x48/question.png"),
-					     options,
-					     options[0]);
-    	if (n == 0)
-	    {
-    		f.mkdir();
-    		created = true;
-	    }
-    	return created;
+
+    private static File checkWorkDirectory(String workDir) {
+        File d = new File(workDir);
+
+        if (!d.exists()) {
+            if (createWorkDirQuestion(d)) {
+                return d;
+            } else {
+                return null;
+            }
+        }
+        return d;
     }
-		
+
+    private static boolean createWorkDirQuestion(File f) {
+        boolean created = false;
+        String msg = "There is no NetGUI project at specified directory.\nDo you want to create it?";
+        Object[] options = {"create dir", "cancel"};
+        int n = JOptionPane.showOptionDialog(c,
+                msg,
+                "New project",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                new ImageIcon(System.getProperty("NETLAB_HOME") + "/images/48x48/question.png"),
+                options,
+                options[0]);
+        if (n == 0) {
+            f.mkdir();
+            created = true;
+        }
+        return created;
+    }
 }

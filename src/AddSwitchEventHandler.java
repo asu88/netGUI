@@ -20,63 +20,48 @@
  *  
  */
 
-
-import java.awt.*;
+import edu.umd.cs.piccolo.event.*;
 import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
-import java.util.*;
-
 import javax.swing.*;
 
-import edu.umd.cs.piccolo.*;
-import edu.umd.cs.piccolo.PCanvas;
-import edu.umd.cs.piccolo.nodes.*;
-import edu.umd.cs.piccolox.*;
-import edu.umd.cs.piccolox.nodes.*;
-import edu.umd.cs.piccolo.event.*;
-import edu.umd.cs.piccolo.util.*;
+public class AddSwitchEventHandler extends PBasicInputEventHandler {
 
-public class AddSwitchEventHandler extends PBasicInputEventHandler
-{
-	LayersHandler handler;
-	
-	public AddSwitchEventHandler (LayersHandler lHandler)
-		{
-			PInputEventFilter filter = new PInputEventFilter();
-			filter.setOrMask(InputEvent.BUTTON1_MASK);
-			setEventFilter(filter);
-			handler = lHandler;
-		}
-	
-	public void mouseClicked (PInputEvent e)
-		{
-			super.mouseClicked(e);
-			displayWindow(e.getPosition());			
-		}
-		
-	private void displayWindow (Point2D globalPoint2D)
-		{
-			String switchName;
-			boolean cancel = false;
-			boolean exit = true;
-					
-			do
-			{
-			switchName = (String)JOptionPane.showInputDialog(
-    			null,
-    			"Type a name for the switch",
-    			"New switch",
-    			JOptionPane.PLAIN_MESSAGE,
-    			new ImageIcon(System.getProperty("NETLAB_HOME")+"/images/48x48/switch.png"),
-    			null,
-    			handler.getUnusedSwitchName());
-    			
-    		cancel = (switchName == null);
-    		if ((!cancel) && (switchName.length() > 0))
-    			handler.addNewSwitch(globalPoint2D, switchName);
-    		exit = (cancel || handler.nodeNameExists(switchName));
-    		}
-    		while (!exit);
-		}
+    LayersHandler handler;
+
+    public AddSwitchEventHandler(LayersHandler lHandler) {
+        PInputEventFilter filter = new PInputEventFilter();
+        filter.setOrMask(InputEvent.BUTTON1_MASK);
+        setEventFilter(filter);
+        handler = lHandler;
+    }
+
+    @Override
+    public void mouseClicked(PInputEvent e) {
+        super.mouseClicked(e);
+        displayWindow(e.getPosition());
+    }
+
+    private void displayWindow(Point2D globalPoint2D) {
+        String switchName;
+        boolean cancel = false;
+        boolean exit = true;
+
+        do {
+            switchName = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Type a name for the switch",
+                    "New switch",
+                    JOptionPane.PLAIN_MESSAGE,
+                    new ImageIcon(System.getProperty("NETLAB_HOME") + "/images/48x48/switch.png"),
+                    null,
+                    handler.getUnusedSwitchName());
+
+            cancel = (switchName == null);
+            if ((!cancel) && (switchName.length() > 0)) {
+                handler.addNewSwitch(globalPoint2D, switchName);
+            }
+            exit = (cancel || handler.nodeNameExists(switchName));
+        } while (!exit);
+    }
 }

@@ -20,64 +20,48 @@
  *  
  */
 
-
-
-import java.awt.*;
+import edu.umd.cs.piccolo.event.*;
 import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
-import java.util.*;
-
 import javax.swing.*;
 
-import edu.umd.cs.piccolo.*;
-import edu.umd.cs.piccolo.PCanvas;
-import edu.umd.cs.piccolo.nodes.*;
-import edu.umd.cs.piccolox.*;
-import edu.umd.cs.piccolox.nodes.*;
-import edu.umd.cs.piccolo.event.*;
-import edu.umd.cs.piccolo.util.*;
+public class AddTerminalEventHandler extends PBasicInputEventHandler {
 
-public class AddTerminalEventHandler extends PBasicInputEventHandler
-{
-	LayersHandler handler;
-	
-	public AddTerminalEventHandler (LayersHandler lHandler)
-		{
-			PInputEventFilter filter = new PInputEventFilter();
-			filter.setOrMask(InputEvent.BUTTON1_MASK);
-			setEventFilter(filter);
-			handler = lHandler;
-		}
-	
-	public void mouseClicked (PInputEvent e)
-		{
-			super.mouseClicked(e);
-			displayWindow(e.getPosition());			
-		}
-		
-	private void displayWindow (Point2D globalPoint2D)
-		{
-			String systemName;
-			boolean cancel = false;
-			boolean exit = true;
-						
-			do
-			{
-			systemName = (String)JOptionPane.showInputDialog(
-    			null,
-    			"Type a name for this host",
-    			"New host",
-    			JOptionPane.PLAIN_MESSAGE,
-    			new ImageIcon(System.getProperty("NETLAB_HOME")+"/images/48x48/system.png"),
-    			null,
-    			handler.getUnusedTerminalName());
-    			
-    		cancel = (systemName == null);
-    		if ((!cancel) && (systemName.length() > 0))
-    			handler.addNewTerminal(globalPoint2D, systemName);
-    		exit = (cancel || handler.nodeNameExists(systemName));
-    		}
-    		while (!exit);
-		}
+    LayersHandler handler;
+
+    public AddTerminalEventHandler(LayersHandler lHandler) {
+        PInputEventFilter filter = new PInputEventFilter();
+        filter.setOrMask(InputEvent.BUTTON1_MASK);
+        setEventFilter(filter);
+        handler = lHandler;
+    }
+
+    @Override
+    public void mouseClicked(PInputEvent e) {
+        super.mouseClicked(e);
+        displayWindow(e.getPosition());
+    }
+
+    private void displayWindow(Point2D globalPoint2D) {
+        String systemName;
+        boolean cancel = false;
+        boolean exit = true;
+
+        do {
+            systemName = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Type a name for this host",
+                    "New host",
+                    JOptionPane.PLAIN_MESSAGE,
+                    new ImageIcon(System.getProperty("NETLAB_HOME") + "/images/48x48/system.png"),
+                    null,
+                    handler.getUnusedTerminalName());
+
+            cancel = (systemName == null);
+            if ((!cancel) && (systemName.length() > 0)) {
+                handler.addNewTerminal(globalPoint2D, systemName);
+            }
+            exit = (cancel || handler.nodeNameExists(systemName));
+        } while (!exit);
+    }
 }

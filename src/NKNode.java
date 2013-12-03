@@ -22,129 +22,126 @@
 
 /*
 
-*******************************************************************
-* NKNode es una clase que establece todas las propiedades de los 
-* nodos que se definen sobre NetKit en Picolo.
-*******************************************************************
+ *******************************************************************
+ * NKNode es una clase que establece todas las propiedades de los 
+ * nodos que se definen sobre NetKit en Picolo.
+ *******************************************************************
 
-*/
-
-import java.awt.Dimension;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
-import java.util.*;
-import java.lang.*;
-
-import edu.umd.cs.piccolo.*;
-import edu.umd.cs.piccolo.PCanvas;
+ */
 import edu.umd.cs.piccolo.nodes.*;
-import edu.umd.cs.piccolox.*;
-import edu.umd.cs.piccolox.nodes.*;
-import edu.umd.cs.piccolo.event.*;
-import edu.umd.cs.piccolo.util.*;
 
-public abstract class NKNode extends PImage
-{
-	private String name;
-	private PImage image;
-	private PImage selected_image;
-	private PImage deleted_image;
-	
-	
-	
-	/*************************************************************
-	 * Constructor de la clase
-	 *************************************************************/
-	public NKNode (String name, String imgFile, String img_selectedFile, String img_deletedFile)
-	{
-		super(imgFile);
-		this.name = name;
-		image = new PImage(imgFile);
-		selected_image = new PImage(img_selectedFile);
-		deleted_image = new PImage(img_deletedFile);
-		ShowDisplayName(name);
-	}
-	
-	/********************************************
-	 * Devuelve el nombre del nodo
-	 ********************************************/
-	public String getName () {return name;}
-	
-	/*************************************************************
-	 * Añade una conexión al nodo
-	 *************************************************************/
-	public abstract void addEdge (NKConection edge);
-	
-	/*************************************************************
-	 * Elimina una conexión del nodo
-	 *************************************************************/
-	public abstract void removeEdge (NKConection edge);
-	
-	/*************************************************************
-	 * Compara este nodo con otro
-	 * (Devuelve true si tienen el mismo nombre)
-	 *************************************************************/
-	public boolean equals (NKNode n)
-	{
-		return name.equalsIgnoreCase(n.getName());
-	}
-	
-	/*************************************************************
-	 * Actualiza todas las conexiones del nodo para poder
-	 * representarlas en pantalla cuando el nodo es arrastrado
-	 *************************************************************/
-	public abstract void updateEdges ();
-	
-	/*************************************************************
-	 * establece la imagen para el icono cuando es seleccionado
-	 *************************************************************/
-	public void setSelectedImage ()
-	{
-		setImage(selected_image.getImage());
-	}
-	
-	/*************************************************************
-	 * establece la imagen para el icono cuando deja de ser
-	 * seleccionado
-	 *************************************************************/
-	public void setNormalImage ()
-	{
-		setImage(image.getImage());
-	}
-	
-	/*************************************************************
-	 * establece la imagen para el icono cuando va a ser eliminado
-	 *************************************************************/
-	public void setDeleteImage ()
-	{
-		setImage(deleted_image.getImage());
-	}
-	
-	 
-	/*************************************************************
-	 * cambia la imagen para el icono cuando es
-	 * seleccionado
-	 *************************************************************/
-	protected void changeSelectedImage (String newImage)
-	{
-		selected_image = new PImage(newImage);
-		setSelectedImage();
-	}
-	
-	/*************************************************************
-	 * cambia la imagen para el icono cuando deja de
-	 * ser seleccionado
-	 *************************************************************/
-	protected void changeNormalImage (String newImage)
-	{
-		image = new PImage(newImage);
-		setNormalImage();
-	}
-	
-	
-	/*************************************************************
-	 * Posiciona el nombre del nodo en el icono
-	 *************************************************************/
-	protected abstract void ShowDisplayName (String name);
+public abstract class NKNode extends PImage {
+
+    private String name;
+    private PImage image;
+    private PImage selected_image;
+    private PImage deleted_image;
+
+    /**
+     * ***********************************************************
+     * Constructor de la clase
+	 ************************************************************
+     */
+    public NKNode(String name, String imgFile, String img_selectedFile, String img_deletedFile) {
+        super(imgFile);
+        this.name = name;
+        image = new PImage(imgFile);
+        selected_image = new PImage(img_selectedFile);
+        deleted_image = new PImage(img_deletedFile);
+        ShowDisplayName(name);
+    }
+
+    /**
+     * ******************************************
+     * Devuelve el nombre del nodo
+	 *******************************************
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * ***********************************************************
+     * Aï¿½ade una conexiï¿½n al nodo
+	 ************************************************************
+     */
+    public abstract void addEdge(NKConection edge);
+
+    /**
+     * ***********************************************************
+     * Elimina una conexiï¿½n del nodo
+	 ************************************************************
+     */
+    public abstract void removeEdge(NKConection edge);
+
+    /**
+     * ***********************************************************
+     * Compara este nodo con otro (Devuelve true si tienen el mismo nombre)
+	 ************************************************************
+     */
+    public boolean equals(NKNode n) {
+        return name.equalsIgnoreCase(n.getName());
+    }
+
+    /**
+     * ***********************************************************
+     * Actualiza todas las conexiones del nodo para poder representarlas en
+     * pantalla cuando el nodo es arrastrado
+	 ************************************************************
+     */
+    public abstract void updateEdges();
+
+    /**
+     * ***********************************************************
+     * establece la imagen para el icono cuando es seleccionado
+	 ************************************************************
+     */
+    public void setSelectedImage() {
+        setImage(selected_image.getImage());
+    }
+
+    /**
+     * ***********************************************************
+     * establece la imagen para el icono cuando deja de ser seleccionado
+	 ************************************************************
+     */
+    public void setNormalImage() {
+        setImage(image.getImage());
+    }
+
+    /**
+     * ***********************************************************
+     * establece la imagen para el icono cuando va a ser eliminado
+	 ************************************************************
+     */
+    public void setDeleteImage() {
+        setImage(deleted_image.getImage());
+    }
+
+    /**
+     * ***********************************************************
+     * cambia la imagen para el icono cuando es seleccionado
+	 ************************************************************
+     */
+    protected void changeSelectedImage(String newImage) {
+        selected_image = new PImage(newImage);
+        setSelectedImage();
+    }
+
+    /**
+     * ***********************************************************
+     * cambia la imagen para el icono cuando deja de ser seleccionado
+	 ************************************************************
+     */
+    protected void changeNormalImage(String newImage) {
+        image = new PImage(newImage);
+        setNormalImage();
+    }
+
+    /**
+     * ***********************************************************
+     * Posiciona el nombre del nodo en el icono
+	 ************************************************************
+     */
+    protected abstract void ShowDisplayName(String name);
 }

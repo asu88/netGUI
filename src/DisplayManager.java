@@ -21,119 +21,104 @@
  */
 
 import edu.umd.cs.piccolo.*;
-import edu.umd.cs.piccolo.nodes.*;
-import edu.umd.cs.piccolox.*;
-import edu.umd.cs.piccolo.util.*;
-import edu.umd.cs.piccolox.handles.PBoundsHandle;
-
 import java.util.*;
 
-public class DisplayManager
-{
-	private PCamera camera;
-	private PRoot root;
-        private HashMap<PLayer,Integer> hiddenLayers; 
+public class DisplayManager {
 
-	public DisplayManager (PRoot r, PCamera pc)
-	{
-		root = r;
-		camera = pc;
-		hiddenLayers = new HashMap<PLayer,Integer> ();
-	}
+    private PCamera camera;
+    private PRoot root;
+    private HashMap<PLayer, Integer> hiddenLayers;
 
-	public void addLayerOnTop(PLayer layer)
-	{
-		if (camera.indexOfLayer(layer) == -1)
-			root.addChild(layer);
-		else
-			camera.removeLayer(layer);
-		camera.addLayer(layer);
-	}
+    public DisplayManager(PRoot r, PCamera pc) {
+        root = r;
+        camera = pc;
+        hiddenLayers = new HashMap<PLayer, Integer>();
+    }
 
-	public void addLayerAtBottom(PLayer layer)
-	{
-		if (camera.indexOfLayer(layer) == -1)
-			root.addChild(layer);
-		else
-			camera.removeLayer(layer);
-		camera.addLayer(1,layer);
-	}
+    public void addLayerOnTop(PLayer layer) {
+        if (camera.indexOfLayer(layer) == -1) {
+            root.addChild(layer);
+        } else {
+            camera.removeLayer(layer);
+        }
+        camera.addLayer(layer);
+    }
 
-	public void downLayer(PLayer layer)
-	{
-		int index = camera.indexOfLayer(layer);
+    public void addLayerAtBottom(PLayer layer) {
+        if (camera.indexOfLayer(layer) == -1) {
+            root.addChild(layer);
+        } else {
+            camera.removeLayer(layer);
+        }
+        camera.addLayer(1, layer);
+    }
 
-		if (!(index == -1))
-		{
-			if (!(index==1)) //No esta en el nivel más profundo
-			{
-				camera.removeLayer(layer);
-				camera.addLayer(index-1,layer);
-			}
-		}
-	}
+    public void downLayer(PLayer layer) {
+        int index = camera.indexOfLayer(layer);
 
-	public void upLayer(PLayer layer)
-	{
-		int index = camera.indexOfLayer(layer);
+        if (!(index == -1)) {
+            if (!(index == 1)) //No esta en el nivel mï¿½s profundo
+            {
+                camera.removeLayer(layer);
+                camera.addLayer(index - 1, layer);
+            }
+        }
+    }
 
-		if (!(index == -1))
-		{
-			if (!(index==camera.getLayerCount()-1)) //No esta en el nivel más alto
-			{
-				camera.removeLayer(layer);
-				camera.addLayer(index+1,layer);
-			}
-		}
-	}
+    public void upLayer(PLayer layer) {
+        int index = camera.indexOfLayer(layer);
 
-	public void hideLayer(PLayer layer)
-	{
-		int index = camera.indexOfLayer(layer);
+        if (!(index == -1)) {
+            if (!(index == camera.getLayerCount() - 1)) //No esta en el nivel mï¿½s alto
+            {
+                camera.removeLayer(layer);
+                camera.addLayer(index + 1, layer);
+            }
+        }
+    }
 
-		if (!(index == -1)) //Layer existe
-		{
-			Integer deep = new Integer(index);
-			camera.removeLayer(layer);
-			hiddenLayers.put(layer,deep);
-		}
-	}
+    public void hideLayer(PLayer layer) {
+        int index = camera.indexOfLayer(layer);
 
-	public void showLayer(PLayer layer)
-	{
-		if (hiddenLayers.containsKey(layer))
-		{
-			int index = ((hiddenLayers.get(layer))).intValue();
-			camera.addLayer(index, layer);
-			hiddenLayers.remove(layer);
-		}
-	}
+        if (!(index == -1)) //Layer existe
+        {
+            Integer deep = new Integer(index);
+            camera.removeLayer(layer);
+            hiddenLayers.put(layer, deep);
+        }
+    }
 
-	public void toFrontLayer (PLayer layer)
-	{
-		int index = camera.indexOfLayer(layer);
+    public void showLayer(PLayer layer) {
+        if (hiddenLayers.containsKey(layer)) {
+            int index = ((hiddenLayers.get(layer))).intValue();
+            camera.addLayer(index, layer);
+            hiddenLayers.remove(layer);
+        }
+    }
 
-		if (!(index == -1)) //Layer existe
-		{
-			if (!(index==camera.getLayerCount()-1)) //No esta en el nivel más alto
-			{
-				camera.removeLayer(layer);
-				camera.addLayer(layer);
-			}
-		}
-	}
+    public void toFrontLayer(PLayer layer) {
+        int index = camera.indexOfLayer(layer);
 
-	public void toBottomLayer (PLayer layer)
-	{
-		int index = camera.indexOfLayer(layer);
+        if (!(index == -1)) //Layer existe
+        {
+            if (!(index == camera.getLayerCount() - 1)) //No esta en el nivel mï¿½s alto
+            {
+                camera.removeLayer(layer);
+                camera.addLayer(layer);
+            }
+        }
+    }
 
-		if (!(index == -1)) //Layer existe
-		{
-			if (!(index==1)) //No esta en el nivel más profundo
-			{
-				camera.removeLayer(layer);
-				camera.addLayer(1,layer);
-			}
-		}
-	}
+    public void toBottomLayer(PLayer layer) {
+        int index = camera.indexOfLayer(layer);
+
+        if (!(index == -1)) //Layer existe
+        {
+            if (!(index == 1)) //No esta en el nivel mï¿½s profundo
+            {
+                camera.removeLayer(layer);
+                camera.addLayer(1, layer);
+            }
+        }
+    }
 }

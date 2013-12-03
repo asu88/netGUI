@@ -22,221 +22,252 @@
 
 /*
 
-**********************************************************************
-* Clase que representa un router dentro de la red
-**********************************************************************
+ **********************************************************************
+ * Clase que representa un router dentro de la red
+ **********************************************************************
 
-*/
-import edu.umd.cs.piccolo.*;
-import edu.umd.cs.piccolo.PCanvas;
-import edu.umd.cs.piccolo.nodes.*;
-import edu.umd.cs.piccolox.*;
-import edu.umd.cs.piccolox.nodes.*;
-import edu.umd.cs.piccolo.event.*;
-import edu.umd.cs.piccolo.util.*;
-import edu.umd.cs.piccolox.handles.PBoundsHandle;
-
-import java.util.*;
-import java.lang.*;
+ */
+import edu.umd.cs.piccolo.nodes.PText;
 import java.awt.geom.*;
-import java.awt.*;
-import java.awt.geom.Point2D.*;
+import java.util.*;
 
-public class NKRouter extends NKSystem
-{
-        public static final long serialVersionUID = 1L;
-	private static final String fileImage = System.getProperty("NETLAB_HOME")+"/images/128x128/router2.png";
-	private static final String deleteFileImage = System.getProperty("NETLAB_HOME")+"/images/128x128/routerDel2.png";
-	private static final String fileSelectedImage = System.getProperty("NETLAB_HOME")+"/images/128x128/router_selected2.png";
-	private static final String fileStartedImage = System.getProperty("NETLAB_HOME")+"/images/128x128/routerStarted2.png";
-	private static final String fileSelectedStartedImage = System.getProperty("NETLAB_HOME")+"/images/128x128/routerStartedSelected2.png";
-	private static final String eth = "eth";
-	//Almacenaremos un array con todas las referencias de las conexiones que mantenga
-	//abiertas este nodo.
-	private ArrayList<NKConection> conections;
-	
-	//Almacenaremos las tuplas [red, interfaz] -> [String, Ethernet]
-        private HashMap<String,Ethernet> interfaces;
-	
-	//especificamos un rectangulo de delimitación (Para calcular intersecciones)
-	private final RectangleNodeDelimiter delimiter;
-	
-	public NKRouter (String name, LayersHandler handler)
-	{
-		super(name, fileImage, fileSelectedImage, deleteFileImage, handler);
-		conections = new ArrayList<NKConection>();
-		interfaces = new HashMap<String,Ethernet>();
+public class NKRouter extends NKSystem {
 
-		//big icons
-		//delimiter = new RectangleNodeDelimiter(79.0,-85.0,54.0,-71.0);
+    public static final long serialVersionUID = 1L;
+    private static final String fileStartedImageRIPD = System.getProperty("NETLAB_HOME") + "/images/128x128/router_ripd.png";
+    private static final String fileStartedImageOSPFD = System.getProperty("NETLAB_HOME") + "/images/128x128/router_ospfd.png";
+    private static final String fileStartedSelectedImageRIPD = System.getProperty("NETLAB_HOME") + "/images/128x128/routerSelected_ripd.png";
+    private static final String fileStartedSelectedOSPFD = System.getProperty("NETLAB_HOME") + "/images/128x128/routerSelected_ospfd.png";
+    private static final String fileImage = System.getProperty("NETLAB_HOME") + "/images/128x128/router2.png";
+    private static final String deleteFileImage = System.getProperty("NETLAB_HOME") + "/images/128x128/routerDel2.png";
+    private static final String fileSelectedImage = System.getProperty("NETLAB_HOME") + "/images/128x128/router_selected2.png";
+    private static final String fileStartedImage = System.getProperty("NETLAB_HOME") + "/images/128x128/routerStarted2.png";
+    private static final String fileSelectedStartedImage = System.getProperty("NETLAB_HOME") + "/images/128x128/routerStartedSelected2.png";
+    private static final String eth = "eth";
+    //Almacenaremos un array con todas las referencias de las conexiones que mantenga
+    //abiertas este nodo.
+    private ArrayList<NKConection> conections;
+    //Almacenaremos las tuplas [red, interfaz] -> [String, Ethernet]
+    private HashMap<String, Ethernet> interfaces;
+    //especificamos un rectangulo de delimitaciï¿½n (Para calcular intersecciones)
+    private final RectangleNodeDelimiter delimiter;
 
-		//small icons
-		delimiter = new RectangleNodeDelimiter(75.0,-70.0,50.0,-50.0);
-	}
-	
-	/*************************************************************
-	 * Añade una conexión al nodo
-	 *************************************************************/
-	public void addEdge (NKConection edge)
-	{
-		if (!conections.contains(edge))
-		{
-			//No existía la conexión
-			conections.add(edge);
-			Ethernet ethX = new Ethernet(getNewEthName());
-			//formatEthText(ethX);
-			handler.showInterfazEth(ethX);
-			interfaces.put(getNetName(edge),ethX);			
-		}
-	}
-	
-	/*************************************************************
-	 * Elimina una conexión con el nodo
-	 *************************************************************/
-	public void removeEdge (NKConection edge)
-	{
-		if (conections.contains(edge))
-		{
-			conections.remove(conections.indexOf(edge));
-			handler.notShowInterfazEth(interfaces.get(getNetName(edge)));
-			interfaces.remove(getNetName(edge));
-		}
-	}
-	
-	/*************************************************************
-	 * Devuelve todas las conexiones del nodo
-	 *************************************************************/
-	public ArrayList getEdges ()
-	{
-		return conections;
-	}
-	
-	/*************************************************************
-	 * Actualiza todas las conexiones del nodo para poder
-	 * representarlas en pantalla cuando el nodo es arrastrado
-	 *************************************************************/
-	public void updateEdges ()
-	{
-		for (int i = 0; i < conections.size(); i++)
-		{
-			//NetKitGUI.this.updateEdge((PPath) edges.get(i));
-			(conections.get(i)).updateEdge();			
-		}
-	}
-	
-	public void startNetKit()
-	{
-		if (!isStarted())
-		{
-			String cmd = vstartCmdGen();
-			try {
-				Process proc;
-				proc = Runtime.getRuntime().exec(cmd, null);
-				//setStarted(true);
-				updateStartedImages();
-				TelnetConnector tc = new TelnetConnector(this, cmd);
-			} catch (Exception ex)
-				{System.out.println("Error " + ex);}
-		}
-	}
-	
-	protected void updateStartedImages ()
-	{
-		changeSelectedImage (fileSelectedStartedImage);
-		changeNormalImage (fileStartedImage);
-	}
-	
-	protected void updateNormalImages ()
-	{
-		changeSelectedImage (fileSelectedImage);
-		changeNormalImage (fileImage);
-		updateEthernets(new HashMap());
-	}
-	
-	/*****************************************************************
-	 * Los nodos se conectan a la red únicamente a través de hubs
-	 * El nodo accede a ellos para obtener el nombre de red.
-	 *****************************************************************/
-	private String getNetName(NKConection edge)
-	{
-		//Si es un NKDirectConection es porque estan dos routers conectados directamente
-		if (edge instanceof NKDirectConection)
-			return ((NKDirectConection)edge).getNetName ();
-		else if (edge.getNode1().getName().equalsIgnoreCase(getName()))
-			return ((NKHub)edge.getNode2()).getNetName();
-		else return ((NKHub)edge.getNode1()).getNetName();
-	}
-	
-	/*****************************************************************
-	 * Genera el comando vstart con los parámetros necesarios para
-	 * arrancar netkit
-	 *****************************************************************/
-	private String vstartCmdGen()
-	{
-		if (conections.isEmpty())
-			return processStartCmd("vstart -l " + UtilNetGUI.getCurrentWorkSpace().getAbsolutePath() + " " + getName());
-		Iterator i = conections.iterator();
-		String s = "vstart -l " + UtilNetGUI.getCurrentWorkSpace().getAbsolutePath() + " " + getName();
-		String key;
-		while (i.hasNext())
-		{
-			key = getNetName((NKConection)i.next());
-			s += " --" + (interfaces.get(key)).getEthName ().getText() +
-				"=" + key;
-		}
-		return processStartCmd(s);
-	}
-	
-	private String getNewEthName()
-	{
-		boolean exit = false;
-		String ethId;
-		int count = 0;
-		do
-		{
-			ethId = eth + count;
-			count ++;
-		}while(ethIsUsed(ethId));
-		return ethId;			
-	}
-	
-	private boolean ethIsUsed(String ethId)
-	{
-		Iterator i = interfaces.values().iterator();
-		boolean used = false;
-		Ethernet eAux;
-		while (i.hasNext() && !used)
-		{
-			eAux = (Ethernet)i.next();
-			used = (ethId.equalsIgnoreCase(eAux.getEthName ().getText()));
-		}
-		return used;
-	}
-	
-	protected void updateEthLocation(NKConection edge)
-	{
-		if (conections.contains(edge))
-		{			
-			Point2D p = NetKitGeom.getGlobalIntersect(delimiter,this, edge);
-			Ethernet ethNode = interfaces.get(getNetName(edge));
-			ethNode.centerFullBoundsOnPoint(p.getX(),p.getY());
-		}
-	}
-	
-	public void updateEthernets (HashMap eth_ip)
-	{
-		Iterator i = interfaces.keySet().iterator();
-		String net,ethX;
-		while (i.hasNext())
-		{
-			net = (String)i.next();
-			ethX = (interfaces.get(net)).getEthName().getText();
-			if (eth_ip.containsKey(ethX))
-				//actualizamos la ip de la interfaz
-				(interfaces.get(net)).setIp((String)eth_ip.get(ethX));
-			else
-				//si no está significa que la interfaz no tiene ip asignada
-				(interfaces.get(net)).setIp(null);
-		}
-	}
+    public NKRouter(String name, LayersHandler handler) {
+        super(name, fileImage, fileSelectedImage, deleteFileImage, handler);
+        conections = new ArrayList<NKConection>();
+        interfaces = new HashMap<String, Ethernet>();
+
+        //big icons
+        //delimiter = new RectangleNodeDelimiter(79.0,-85.0,54.0,-71.0);
+
+        //small icons
+        delimiter = new RectangleNodeDelimiter(75.0, -70.0, 50.0, -50.0);
+        // Fijamos el campo para el demonio
+        CreateDemonField();
+    }
+
+    /**
+     * ***********************************************************
+     * Aï¿½ade una conexiï¿½n al nodo
+	 ************************************************************
+     */
+    @Override
+    public synchronized void addEdge(NKConection edge) {
+        if (!conections.contains(edge)) {
+            //No existï¿½a la conexiï¿½n
+            conections.add(edge);
+            Ethernet ethX = new Ethernet(getNewEthName());
+            //formatEthText(ethX);
+            handler.showInterfazEth(ethX);
+            interfaces.put(getNetName(edge), ethX);
+        }
+    }
+
+    /**
+     * ***********************************************************
+     * Elimina una conexiï¿½n con el nodo
+	 ************************************************************
+     */
+    @Override
+    public synchronized void removeEdge(NKConection edge) {
+        if (conections.contains(edge)) {
+            conections.remove(conections.indexOf(edge));
+            handler.notShowInterfazEth(interfaces.get(getNetName(edge)));
+            interfaces.remove(getNetName(edge));
+        }
+    }
+
+    public synchronized HashMap<String, Ethernet> getInterfaces() {
+        return interfaces;
+    }
+
+    /**
+     * ***********************************************************
+     * Devuelve todas las conexiones del nodo
+	 ************************************************************
+     */
+    public ArrayList getEdges() {
+        return conections;
+    }
+
+    /**
+     * ***********************************************************
+     * Actualiza todas las conexiones del nodo para poder representarlas en
+     * pantalla cuando el nodo es arrastrado
+	 ************************************************************
+     */
+    @Override
+    public void updateEdges() {
+        for (int i = 0; i < conections.size(); i++) {
+            //NetKitGUI.this.updateEdge((PPath) edges.get(i));
+            (conections.get(i)).updateEdge();
+        }
+    }
+
+    @Override
+    public void startNetKit() {
+        if (!isStarted()) {
+            String cmd = vstartCmdGen();
+            System.out.println("COMANDO: " + cmd);
+            try {
+                Process proc;
+                proc = Runtime.getRuntime().exec(cmd, null);
+                //setStarted(true);
+                updateStartedImages();
+                TelnetConnector tc = new TelnetConnector(this, cmd);
+                //TCPConnector tc = new TCPConnector(this, cmd);
+            } catch (Exception ex) {
+                System.out.println("Error " + ex);
+            }
+        }
+    }
+    
+//////    // Metodos para variar la imagen cuando corra algun demonio en router
+//////    
+//////    protected void updateRIPDImages(){
+//////        changeSelectedImage(fileStartedSelectedImageRIPD); // Crear imagen para seleccionado
+//////        changeNormalImage(fileStartedImageRIPD);
+//////    }
+//////    
+//////    protected void updateOSPFDImages(){
+//////        changeSelectedImage(fileStartedSelectedOSPFD); // Crear imagen para seleccionado
+//////        changeNormalImage(fileStartedImageOSPFD);
+//////    }
+
+    // Metodo para variar una etiqueta en lugar de la imagen completa
+    private PText tNode;
+    
+    private void CreateDemonField(){
+        double height = this.getHeight(), width = this.getWidth();
+        tNode = new PText();
+        tNode.centerFullBoundsOnPoint((width / 8), (height/2));
+        tNode.setPickable(false);
+        tNode.setScale((float) 1.5);
+        this.addChild(tNode);
+    }
+    
+    protected void SetDemonName(String name) {
+        
+        tNode.setText(name);
+        
+    }
+    
+    @Override
+    protected void updateStartedImages() {
+        changeSelectedImage(fileSelectedStartedImage);
+        changeNormalImage(fileStartedImage);
+    }
+
+    @Override
+    protected void updateNormalImages() {
+        changeSelectedImage(fileSelectedImage);
+        changeNormalImage(fileImage);
+        updateEthernets(new HashMap());
+    }
+
+    /**
+     * ***************************************************************
+     * Los nodos se conectan a la red ï¿½nicamente a travï¿½s de hubs El nodo accede
+     * a ellos para obtener el nombre de red.
+	 ****************************************************************
+     */
+    private String getNetName(NKConection edge) {
+        //Si es un NKDirectConection es porque estan dos routers conectados directamente
+        if (edge instanceof NKDirectConection) {
+            return ((NKDirectConection) edge).getNetName();
+        } else if (edge.getNode1().getName().equalsIgnoreCase(getName())) {
+            return ((NKHub) edge.getNode2()).getNetName();
+        } else {
+            return ((NKHub) edge.getNode1()).getNetName();
+        }
+    }
+
+    /**
+     * ***************************************************************
+     * Genera el comando vstart con los parï¿½metros necesarios para arrancar
+     * netkit
+	 ****************************************************************
+     */
+    private synchronized String vstartCmdGen() {
+        if (conections.isEmpty()) {
+            return processStartCmd("vstart -l " + UtilNetGUI.getCurrentWorkSpace().getAbsolutePath() + " " + getName());
+        }
+        Iterator i = conections.iterator();
+        String s = "vstart -l " + UtilNetGUI.getCurrentWorkSpace().getAbsolutePath() + " " + getName();
+        String key;
+        while (i.hasNext()) {
+            key = getNetName((NKConection) i.next());
+            s += " --" + (interfaces.get(key)).getEthName().getText()
+                    + "=" + key;
+        }
+        return processStartCmd(s);
+    }
+
+    private String getNewEthName() {
+        boolean exit = false;
+        String ethId;
+        int count = 0;
+        do {
+            ethId = eth + count;
+            count++;
+        } while (ethIsUsed(ethId));
+        return ethId;
+    }
+
+    private synchronized boolean ethIsUsed(String ethId) {
+        Iterator i = interfaces.values().iterator();
+        boolean used = false;
+        Ethernet eAux;
+        while (i.hasNext() && !used) {
+            eAux = (Ethernet) i.next();
+            used = (ethId.equalsIgnoreCase(eAux.getEthName().getText()));
+        }
+        return used;
+    }
+
+    @Override
+    protected synchronized void updateEthLocation(NKConection edge) {
+        if (conections.contains(edge)) {
+            Point2D p = NetKitGeom.getGlobalIntersect(delimiter, this, edge);
+            Ethernet ethNode = interfaces.get(getNetName(edge));
+            ethNode.centerFullBoundsOnPoint(p.getX(), p.getY());
+        }
+    }
+
+    @Override
+    public synchronized void updateEthernets(HashMap eth_ip) {
+        Iterator i = interfaces.keySet().iterator();
+        String net, ethX;
+        while (i.hasNext()) {
+            net = (String) i.next();
+            ethX = (interfaces.get(net)).getEthName().getText();
+            if (eth_ip.containsKey(ethX)) //actualizamos la ip de la interfaz
+            {
+                (interfaces.get(net)).setIp((String) eth_ip.get(ethX));
+            } else //si no estï¿½ significa que la interfaz no tiene ip asignada
+            {
+                (interfaces.get(net)).setIp(null);
+            }
+        }
+    }
 }

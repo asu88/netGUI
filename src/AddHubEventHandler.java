@@ -20,38 +20,23 @@
  *  
  */
 
-
-import java.awt.*;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
-import java.util.*;
-
-import javax.swing.*;
-
-import edu.umd.cs.piccolo.*;
-import edu.umd.cs.piccolo.PCanvas;
-import edu.umd.cs.piccolo.nodes.*;
-import edu.umd.cs.piccolox.*;
-import edu.umd.cs.piccolox.nodes.*;
 import edu.umd.cs.piccolo.event.*;
-import edu.umd.cs.piccolo.util.*;
+import java.awt.event.InputEvent;
 
-public class AddHubEventHandler extends PBasicInputEventHandler
-{
-	LayersHandler handler;
-	
-	public AddHubEventHandler (LayersHandler lHandler)
-		{
-			PInputEventFilter filter = new PInputEventFilter();
-			filter.setOrMask(InputEvent.BUTTON1_MASK);
-			setEventFilter(filter);
-			handler = lHandler;
-		}
-	
-	public void mouseClicked (PInputEvent e)
-		{
-			super.mouseClicked(e);
-			handler.addNewHub(e.getPosition());				
-		}
+public class AddHubEventHandler extends PBasicInputEventHandler {
+
+    LayersHandler handler;
+
+    public AddHubEventHandler(LayersHandler lHandler) {
+        PInputEventFilter filter = new PInputEventFilter();
+        filter.setOrMask(InputEvent.BUTTON1_MASK);
+        setEventFilter(filter);
+        handler = lHandler;
+    }
+
+    @Override
+    public void mouseClicked(PInputEvent e) {
+        super.mouseClicked(e);
+        handler.addNewHub(e.getPosition());
+    }
 }

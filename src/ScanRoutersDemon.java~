@@ -1,0 +1,80 @@
+
+import edu.umd.cs.piccolo.PLayer;
+import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/**
+ *
+ * @author Fran
+ */
+public class ScanRoutersDemon extends Thread{
+    
+    private PLayer nodeLayer;
+    
+    public ScanRoutersDemon(PLayer nodeLayer){
+        this.nodeLayer = nodeLayer;
+    }
+    
+    @Override
+    public void run(){
+        Object obj;
+        while(true){
+            Iterator i = nodeLayer.getAllNodes().iterator();
+            while(i.hasNext()){
+                obj = i.next();
+                if (obj instanceof NKRouter){
+                    readPS((NKSystem)obj);
+                }
+            }
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ScanRoutersDemon.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+////    private void readPS(NKSystem node) {
+////        if (node.isStarted()){
+////            TelnetSocket ts = NodeTelnetCommunicator.getTelnetSocket(node);
+////            if (ts != null) {
+////                if (ts.send("ps -efww")) {
+////                    String vmAnswer = ts.getOutputResponse();
+////                    if (vmAnswer != null) {
+////                        lookFor(vmAnswer, node);
+////                    }
+////                }
+////            }
+////        }
+////    }
+    
+    private void readPS(NKSystem node){
+        if (node.isStarted()){
+            TCPRequest req = new TCPRequest("20.0.0.2", "ps -efww");
+            req.setTCPRequestCmd();
+            req.send();
+            String reqAnswer = req.getAnswer();
+//            System.out.println("RECIBIMOS: " + reqAnswer);
+            if (reqAnswer != null){
+                lookFor(reqAnswer, node);
+            }
+        }
+    }
+
+    private void lookFor(String vmAnswer, NKSystem node) {
+        if (vmAnswer.contains("ospfd")){
+            ((NKRouter)node).updateOSPFDImages();
+        } else if (vmAnswer.contains("ripd")){
+            ((NKRouter)node).updateRIPDImages();
+        } else {
+            ((NKRouter)node).updateStartedImages();
+        }
+    }
+    
+}

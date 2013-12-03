@@ -20,45 +20,30 @@
  *  
  */
 
-import java.awt.*;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
-import java.util.*;
-
-import javax.swing.*;
-
-import edu.umd.cs.piccolo.*;
-import edu.umd.cs.piccolo.PCanvas;
-import edu.umd.cs.piccolo.nodes.*;
-import edu.umd.cs.piccolox.*;
-import edu.umd.cs.piccolox.nodes.*;
 import edu.umd.cs.piccolo.event.*;
-import edu.umd.cs.piccolo.util.*;
+import java.awt.event.MouseEvent;
 
-public class StartNodeEventHandler extends PBasicInputEventHandler
-{
-	private LayersHandler handler;
-	
-	public StartNodeEventHandler (LayersHandler lHandler)
-		{
-                    super();
-                    handler = lHandler;
+public class StartNodeEventHandler extends PBasicInputEventHandler {
 
-		}
-	
+    private LayersHandler handler;
 
+    public StartNodeEventHandler(LayersHandler lHandler) {
+        super();
+        handler = lHandler;
 
-	public void mouseClicked (PInputEvent e)
-		{
-			super.mouseClicked(e);
+    }
 
-			if (e.getButton() == MouseEvent.BUTTON1) {
+    @Override
+    public void mouseClicked(PInputEvent e) {
+        super.mouseClicked(e);
 
-				if (e.getPickedNode() instanceof NKSystem)
-					if (!(((NKSystem)e.getPickedNode()).isStarted()))
-						((NKSystem)e.getPickedNode()).startNetKit();
-			}
-		}
-			
+        if (e.getButton() == MouseEvent.BUTTON1) {
+
+            if (e.getPickedNode() instanceof NKSystem) {
+                if (!(((NKSystem) e.getPickedNode()).isStarted())) {
+                    ((NKSystem) e.getPickedNode()).startNetKit();
+                }
+            }
+        }
+    }
 }

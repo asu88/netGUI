@@ -4,20 +4,6 @@
  * Dirigido por: Pedro de las Heras Quir� (GSyC)
  * Universidad Rey Juan Carlos 2005
  ************************************************************/
-import java.awt.*;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
-import java.util.*;
-import java.lang.*;
-
-import edu.umd.cs.piccolo.*;
-import edu.umd.cs.piccolo.PCanvas;
-import edu.umd.cs.piccolo.nodes.*;
-import edu.umd.cs.piccolox.*;
-import edu.umd.cs.piccolox.nodes.*;
-import edu.umd.cs.piccolo.event.*;
-import edu.umd.cs.piccolo.util.*;
 
 /***********************************************************
  * Tipo de conexión utilizada para conectar dos routers

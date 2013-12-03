@@ -20,34 +20,39 @@
  *  
  */
 
+/**
+ * *******************************************************************
+ * Delimita un nodo a travï¿½s de las rectas x1,x2,y1,y2
+ *
+ * y2 _______________ |	| |	| x2 | Center | x1 |	| |_______________| y1
+ *
+ *
+ ********************************************************************
+ */
+public class RectangleNodeDelimiter {
 
-/*********************************************************************
- * Delimita un nodo a través de las rectas x1,x2,y1,y2
- *
- *		   y2
- *	     _______________ 
- *	    |		    |
- *	    |		    |
- *	x2  |    Center     | x1
- *	    |		    |
- *	    |_______________|  	
- *		   y1
- *
- *
- *********************************************************************/
-public class RectangleNodeDelimiter
-{
-	double x1, x2, y1, y2;
-	public RectangleNodeDelimiter (double x1, double x2, double y1, double y2)
-	{
-		this.x1 = x1;
-		this.x2 = x2;
-		this.y1 = y1;
-		this.y2 = y2;
-	}
-	
-	double getX1 (){return x1;}
-	double getX2 (){return x2;}
-	double getY1 (){return y1;}
-	double getY2 (){return y2;}
+    double x1, x2, y1, y2;
+
+    public RectangleNodeDelimiter(double x1, double x2, double y1, double y2) {
+        this.x1 = x1;
+        this.x2 = x2;
+        this.y1 = y1;
+        this.y2 = y2;
+    }
+
+    double getX1() {
+        return x1;
+    }
+
+    double getX2() {
+        return x2;
+    }
+
+    double getY1() {
+        return y1;
+    }
+
+    double getY2() {
+        return y2;
+    }
 }

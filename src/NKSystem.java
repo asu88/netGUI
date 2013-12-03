@@ -20,156 +20,206 @@
  *  
  */
 
-
-
-/**********************************************************************
-* Crea una subclase que encapsula a todos los nodos de la red capaces
-* de ejecutar un kernel (Compaq, routers...)
-***********************************************************************/
-
-
-import java.io.*;
-
-import edu.umd.cs.piccolo.*;
-import edu.umd.cs.piccolo.PCanvas;
+/**
+ * ********************************************************************
+ * Crea una subclase que encapsula a todos los nodos de la red capaces de
+ * ejecutar un kernel (Compaq, routers...)
+**********************************************************************
+ */
 import edu.umd.cs.piccolo.nodes.*;
-import edu.umd.cs.piccolox.*;
-import edu.umd.cs.piccolox.nodes.*;
-import edu.umd.cs.piccolo.event.*;
-import edu.umd.cs.piccolo.util.*;
-
-import java.lang.*;
+import java.awt.*;
 import java.util.*;
 
-import java.awt.geom.*;
-import java.awt.*;
-import java.awt.geom.Point2D.*;
+public abstract class NKSystem extends NKNode {
 
-public abstract class NKSystem extends NKNode
-{
-	private boolean started;
-	protected LayersHandler handler;
-	
-	
-	public NKSystem (String name, String fileImage, String fileSelectedImage,
-		 String deleteFileImage, LayersHandler handler)
-	{
-		super(name, fileImage, fileSelectedImage, deleteFileImage);
-		started = false;
-		this.handler = handler;
-	}
-	
-	protected void setStarted (boolean run)
-	{
-		started = run;
-	}
-	
-	public boolean isStarted () {return started;}	
-	
-	/********************************************************************
-	 * Establece el nuevo icono cuando el nodo arranca un kernel-netkit 
-	 ********************************************************************/
-	protected abstract void updateStartedImages();
-	
-	/********************************************************************
-	 * Establece el nuevo icono cuando el nodo arranca un kernel-netkit 
-	 ********************************************************************/
-	protected abstract void updateNormalImages();
-	
-	/*************************************************************
-	 * Posiciona el nombre del nodo en el icono
-	 *************************************************************/
-	protected void ShowDisplayName (String name)
-	{
-		double height = this.getHeight(), width= this.getWidth();
-		PText tNode = new PText(name);
-		tNode.centerFullBoundsOnPoint((width/2),height);
-		tNode.setPickable(false);
-		tNode.setScale((float)1.5);
-		this.addChild(tNode);
-	}
-	
-	protected void formatEthText(PText ethNode)
-	{
-		ethNode.setScale((float)1.0);
-		ethNode.setFont(new Font ("Dialog",Font.BOLD,14));
-		ethNode.setTextPaint(Color.BLUE);
-	}
-	
-	/***************************
-	 * Arranca un kernel-netkit 
-	 ***************************/
-	public abstract void startNetKit();
-	
-	/***************************
-	 * Para Netkit (vrash -r si crash=true; vhalt en otro caso)
-	 ***************************/
-	public void stopNetKit(boolean crash)
-	{
-		String cmd = "";
-		if (isStarted())
-		{
-			if (crash)
-				cmd = vcrashCmdGen();
-			else cmd = vhaltCmdGen();
-			//System.out.println(cmd);
-			
-			try {
-				NodeTelnetCommunicator.removeConnection(this);
-				Process proc;
-				proc = Runtime.getRuntime().exec(cmd,null);
-				setStarted(false);
-				updateNormalImages();
-			} catch (Exception ex)
-				{System.out.println("Error " + ex);}
-		}
-	}
-	
-	/*****************************************************************
-	 * Genera el comando vhalt para parar la ejecución de la máquina
-	 * virtual arrancada sobre este nodo
-	 *****************************************************************/
-	private String vhaltCmdGen()
-	{
-		return "vhalt " + getName();
-		
-	}
-	
-	/*****************************************************************
-	 * Genera el comando vcrash para parar la ejecución de la máquina
-	 * virtual y borrar su archivo de configuración
-	 *****************************************************************/
-	private String vcrashCmdGen()
-	{
-		return "vcrash -r " + getName();
-		
-	}
-	
-	/**************************************************************
-	 * Método invocado sobre el nodo cuando cambia el estado de su
-	 * conexión para que actualice la representación de sus interfaces
-	 **************************************************************/
-	protected abstract void updateEthLocation(NKConection edge);
-	
-	/*****************************************************************
-	 * Añade los parámetros --no-log -f /workspace/nodeName.disk [--new]
-	 * si nodeName.disk no existe.(es la primera vez que se arranca un nodo)
-	 *****************************************************************/
-	 protected String processStartCmd (String cmd)
-	 {
-	 	cmd += " -f " + UtilNetGUI.getCurrentWorkSpace().getAbsolutePath()
-	 			+ "/" + getName() + ".disk ";
-	 	cmd += "--con1=port:" + NodeTelnetCommunicator.getNewPort();
-		//System.out.println(cmd);
-		return cmd;
-	 }
+    private boolean started;
+    protected LayersHandler handler;
 
-	/********************************************************************
-	 *Obtiene un hastmap con el string ethX como clave y su respectiva IP
-	 *también como String que contiene todas las interfaces a actualizar
-	 *con su ip asociada. Si una interfaz no aparece dentro del hasmap
-	 *significará que ya no tiene ip asociada. 
-	 ********************************************************************/
-	public abstract void updateEthernets (HashMap eth_ip);
-	
+    public NKSystem(String name, String fileImage, String fileSelectedImage,
+            String deleteFileImage, LayersHandler handler) {
+        super(name, fileImage, fileSelectedImage, deleteFileImage);
+        started = false;
+        this.handler = handler;
+    }
+
+    protected void setStarted(boolean run) {
+        started = run;
+    }
+
+    public boolean isStarted() {
+        return started;
+    }
+
+    /**
+     * ******************************************************************
+     * Establece el nuevo icono cuando el nodo arranca un kernel-netkit 
+	 *******************************************************************
+     */
+    protected abstract void updateStartedImages();
+
+    /**
+     * ******************************************************************
+     * Establece el nuevo icono cuando el nodo arranca un kernel-netkit 
+	 *******************************************************************
+     */
+    protected abstract void updateNormalImages();
+
+    /**
+     * ***********************************************************
+     * Posiciona el nombre del nodo en el icono
+	 ************************************************************
+     */
+    @Override
+    protected void ShowDisplayName(String name) {
+        double height = this.getHeight(), width = this.getWidth();
+        PText tNode = new PText(name);
+        tNode.centerFullBoundsOnPoint((width / 2), height);
+        tNode.setPickable(false);
+        tNode.setScale((float) 1.5);
+        this.addChild(tNode);
+    }
+
+    protected void formatEthText(PText ethNode) {
+        ethNode.setScale((float) 1.0);
+        ethNode.setFont(new Font("Dialog", Font.BOLD, 14));
+        ethNode.setTextPaint(Color.BLUE);
+    }
+    
+//    public void setProgressBar (String nodeName, int progress){
+//        
+//        String advance = nodeName;
+//        switch (progress){
+//            case 1:
+//                advance += " <=         > 10 %\n";
+//                break;
+//            case 2:
+//                advance += " <==        > 20 %\n";
+//                break;
+//            case 3:
+//                advance += " <===       > 30 %\n";
+//                break;
+//            case 4:
+//                advance += " <====      > 40 %\n";
+//                break;
+//            case 5:
+//                advance += " <=====     > 50 %\n";
+//                break;
+//            case 6:
+//                advance += " <======    > 60 %\n";
+//                break;
+//            case 7:
+//                advance += " <=======   > 70 %\n";
+//                break;
+//            case 8:
+//                advance += " <========  > 80 %\n";
+//                break;
+//            case 9:
+//                advance += " <========= > 90 %\n";
+//                break;
+//            case 10:
+//                advance += " <==========> 100%\n";
+//                break;
+//        }
+//        String editor = NetKitViewer.log.getText();
+//        
+//        int barLocation = editor.indexOf(nodeName + " <");
+//        if (barLocation != -1){
+//            String part1 = editor.substring(0, barLocation);
+//            String part2 = editor.substring(barLocation + nodeName.length() + 19);
+//            NetKitViewer.log.refreshAll(part1 + advance + part2);
+//        } else {
+//            NetKitViewer.log.addText(advance);
+//        }
+//    }
+
+    /**
+     * *************************
+     * Arranca un kernel-netkit 
+	 **************************
+     */
+    public abstract void startNetKit();
+
+    /**
+     * *************************
+     * Para Netkit (vrash -r si crash=true; vhalt en otro caso)
+	 **************************
+     */
+    public void stopNetKit(boolean crash) {
+        String cmd = "";
+        if (isStarted()) {
+            if (crash) {
+                cmd = vcrashCmdGen();
+            } else {
+                cmd = vhaltCmdGen();
+            }
+            //System.out.println(cmd);
+
+            try {
+                NodeTelnetCommunicator2.removeConnection(this);
+                Process proc;
+                proc = Runtime.getRuntime().exec(cmd, null);
+                setStarted(false);
+                updateNormalImages();
+            } catch (Exception ex) {
+                System.out.println("Error " + ex);
+            }
+        }
+    }
+
+    /**
+     * ***************************************************************
+     * Genera el comando vhalt para parar la ejecuciï¿½n de la mï¿½quina virtual
+     * arrancada sobre este nodo
+	 ****************************************************************
+     */
+    private String vhaltCmdGen() {
+        NetKitViewer.log.delete(getName());
+        return "vhalt " + getName();
+
+    }
+
+    /**
+     * ***************************************************************
+     * Genera el comando vcrash para parar la ejecuciï¿½n de la mï¿½quina virtual y
+     * borrar su archivo de configuraciï¿½n
+	 ****************************************************************
+     */
+    private String vcrashCmdGen() {
+        return "vcrash -r " + getName();
+
+    }
+
+    /**
+     * ************************************************************
+     * Mï¿½todo invocado sobre el nodo cuando cambia el estado de su conexiï¿½n para
+     * que actualice la representaciï¿½n de sus interfaces
+	 *************************************************************
+     */
+    protected abstract void updateEthLocation(NKConection edge);
+
+    /**
+     * ***************************************************************
+     * Aï¿½ade los parï¿½metros --no-log -f /workspace/nodeName.disk [--new] si
+     * nodeName.disk no existe.(es la primera vez que se arranca un nodo)
+	 ****************************************************************
+     */
+    protected String processStartCmd(String cmd) {
+        cmd += " -f " + UtilNetGUI.getCurrentWorkSpace().getAbsolutePath()
+                + "/" + getName() + ".disk ";
+        // ModificaciÃ³n para poder arrancar una maquina con acceso a internet
+        //cmd += "--eth0=tap,20.0.0.1,20.0.0.2 ";  //Donde X es un valor dentro de la misma subred
+        cmd += "--con1=port:" + NodeTelnetCommunicator2.getNewPort();
+        //System.out.println(cmd);
+        return cmd;
+    }
+
+    /**
+     * ******************************************************************
+     * Obtiene un hastmap con el string ethX como clave y su respectiva IP
+     * tambiï¿½n como String que contiene todas las interfaces a actualizar con su
+     * ip asociada. Si una interfaz no aparece dentro del hasmap significarï¿½ que
+     * ya no tiene ip asociada. 
+	 *******************************************************************
+     */
+    public abstract void updateEthernets(HashMap eth_ip);
 }

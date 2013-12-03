@@ -20,63 +20,50 @@
  *  
  */
 
-
-import java.awt.*;
+import edu.umd.cs.piccolo.event.*;
 import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
-import java.util.*;
-
 import javax.swing.*;
 
-import edu.umd.cs.piccolo.*;
-import edu.umd.cs.piccolo.PCanvas;
-import edu.umd.cs.piccolo.nodes.*;
-import edu.umd.cs.piccolox.*;
-import edu.umd.cs.piccolox.nodes.*;
-import edu.umd.cs.piccolo.event.*;
-import edu.umd.cs.piccolo.util.*;
+public class AddRouterEventHandler extends PBasicInputEventHandler {
 
-public class AddRouterEventHandler extends PBasicInputEventHandler
-{
-	LayersHandler handler;
-	
-	public AddRouterEventHandler (LayersHandler lHandler)
-		{
-			PInputEventFilter filter = new PInputEventFilter();
-			filter.setOrMask(InputEvent.BUTTON1_MASK);
-			setEventFilter(filter);
-			handler = lHandler;
-		}
-	
-	public void mouseClicked (PInputEvent e)
-		{
-			super.mouseClicked(e);
-			displayWindow(e.getPosition());			
-		}
-		
-	private void displayWindow (Point2D globalPoint2D)
-		{
-			String routerName;
-			boolean cancel = false;
-			boolean exit = true;
-					
-			do
-			{
-			routerName = (String)JOptionPane.showInputDialog(
-    			null,
-    			"Type a name for the router",
-    			"New router",
-    			JOptionPane.PLAIN_MESSAGE,
-    			new ImageIcon(System.getProperty("NETLAB_HOME")+"/images/48x48/router.png"),
-    			null,
-    			handler.getUnusedRouterName());
-    			
-    		cancel = (routerName == null);
-    		if ((!cancel) && (routerName.length() > 0))
-    			handler.addNewRouter(globalPoint2D, routerName);
-    		exit = (cancel || handler.nodeNameExists(routerName));
-    		}
-    		while (!exit);
-		}
+    LayersHandler handler;
+
+    public AddRouterEventHandler(LayersHandler lHandler) {
+        PInputEventFilter filter = new PInputEventFilter();
+        filter.setOrMask(InputEvent.BUTTON1_MASK);
+        setEventFilter(filter);
+        handler = lHandler;
+    }
+
+    @Override
+    public void mouseClicked(PInputEvent e) {
+        super.mouseClicked(e);
+        displayWindow(e.getPosition());
+    }
+
+    private void displayWindow(Point2D globalPoint2D) {
+        String routerName;
+        boolean cancel = false;
+        boolean exit = true;
+
+        do {
+            routerName = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Type a name for the router",
+                    "New router",
+                    JOptionPane.PLAIN_MESSAGE,
+                    new ImageIcon(System.getProperty("NETLAB_HOME") + "/images/48x48/router.png"),
+                    null,
+                    handler.getUnusedRouterName());
+
+            cancel = (routerName == null);
+            if ((!cancel) && (routerName.length() > 0)) {
+                handler.addNewRouter(globalPoint2D, routerName);
+            }
+            exit = (cancel || handler.nodeNameExists(routerName));
+        } while (!exit);
+        
+        
+    }
 }

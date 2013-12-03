@@ -20,19 +20,17 @@
  *  
  */
 
-
 import java.io.File;
-import javax.swing.*;
 import javax.swing.filechooser.*;
 
-/* Filtro utilizado por JFileChooser para aceptar únicamente ficheros
+/* Filtro utilizado por JFileChooser para aceptar ï¿½nicamente ficheros
  * creados con NetKitGUI*/
- 
 public class NKProjectFilter extends FileFilter {
 
-	private static final String nkp = "nkp";
-	
+    private static final String nkp = "nkp";
+
     //Accept all directories and nkp "NetKit Projects" files.
+    @Override
     public boolean accept(File f) {
         if (f.isDirectory()) {
             return true;
@@ -41,7 +39,7 @@ public class NKProjectFilter extends FileFilter {
         String extension = getExtension(f);
         if (extension != null) {
             if (extension.equals(nkp)) {
-                    return true;
+                return true;
             } else {
                 return false;
             }
@@ -51,10 +49,11 @@ public class NKProjectFilter extends FileFilter {
     }
 
     //The description of this filter
+    @Override
     public String getDescription() {
         return "NetKit Projects files";
     }
-    
+
     /*
      * Get the extension of a file.
      */
@@ -63,8 +62,8 @@ public class NKProjectFilter extends FileFilter {
         String s = f.getName();
         int i = s.lastIndexOf('.');
 
-        if (i > 0 &&  i < s.length() - 1) {
-            ext = s.substring(i+1).toLowerCase();
+        if (i > 0 && i < s.length() - 1) {
+            ext = s.substring(i + 1).toLowerCase();
         }
         return ext;
     }
