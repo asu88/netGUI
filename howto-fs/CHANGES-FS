@@ -1,0 +1,31 @@
+F5.2-netgui-1 (changes over F5.2)
+  - edited /root/.bashrc to reset xterm window title via PS1 in case a program (eg: mcedit) changes it:
+	export PS1='\[\033]0;\h\007\]\h:\w\$ '
+  - edited /etc/init.d/networking to add runlevels:
+	# Default-Start:     2 3 4 5 S
+    then invoke update-rc.d to rebuild rc.d links:
+        update-rc.d -f networking remove
+	update-rc.d networking defaults
+  - fixed /etc/quagga/ospdf.conf permissions
+  - radvd is installed.
+  - iperf is installed.
+  - The following line in /etc/network/if-up.d/mountnfs is commented:
+            "log_warning_msg "$msg""
+    The following message is not shown:
+	    "wating for interface ethx before doing NFS mounts (warning)."
+  
+
+F5.0-netgui-v2 (changes over F5.0-netgui-v1)
+  - removed nameservers from /etc/resolv.conf
+  - fixed /etc/quagga/ospdf.conf permissions
+
+
+F5.0-netgui-v1
+  - radvd is installed.
+  - iperf is installed.
+  - The following line in /etc/network/if-up.d/mountnfs is commented:
+            "log_warning_msg "$msg""
+    The following message is not shown:
+	    "wating for interface ethx before doing NFS mounts (warning)."
+
+

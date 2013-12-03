@@ -1,0 +1,26 @@
+SHRINKING NETKIT FS FROM 10GB TO 1GB
+====================================
+
+1. Resize partition size
+
+losetup -o 32768 /dev/loop0 netkit-fs
+e2fsck -f /dev/loop0
+resize2fs /dev/loop0 1024M
+e2fsck -f /dev/loop0
+losetup -d /dev/loop0
+
+2. Recreate partition table with new size
+
+losetup /dev/loop0 netkit-fs
+sfdisk -LuS --no-reread /dev/loop0
+64,2088386,L,*
+0,0
+0,0
+0,0
+y
+losetup -d /dev/loop0
+
+3. Truncate fs file to new size
+dd if=/dev/zero of=netkit-fs-tmp bs=1 seek=1024M count=0
+
+
