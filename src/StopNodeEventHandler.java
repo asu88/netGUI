@@ -20,16 +20,29 @@
  *  
  */
 
+import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.event.*;
+import java.awt.Cursor;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
+import javax.swing.ImageIcon;
 
 public class StopNodeEventHandler extends PBasicInputEventHandler {
 
-    private LayersHandler handler;
+    private PCanvas canvas;
+    Toolkit toolkit = Toolkit.getDefaultToolkit();
+    Point hotSpot = new Point(0,0);
+    // Imagenes de mano abierta y cerrada
+    ImageIcon stop = new ImageIcon(System.getProperty("NETLAB_HOME") + "/images/32x32/stop.png");
+    //Image stop = toolkit.getImage(System.getProperty("NETLAB_HOME") + "/images/32x32/stop.png");    
+    Cursor stopCursor = toolkit.createCustomCursor(stop.getImage(), hotSpot, "stop");
+    Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
 
-    public StopNodeEventHandler(LayersHandler lHandler) {
+    public StopNodeEventHandler(PCanvas canvas) {
         super();
-        handler = lHandler;
+        this.canvas = canvas;
 
     }
 
@@ -46,6 +59,29 @@ public class StopNodeEventHandler extends PBasicInputEventHandler {
             }
             //else
             //	((NKSystem)e.getPickedNode()).startNetKit();
+        }
+    }
+    
+    @Override
+    public void mouseEntered(PInputEvent e) {
+        super.mouseEntered(e);
+        //canvas.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        if (e.getButton() == MouseEvent.NOBUTTON) {
+            if (e.getPickedNode() instanceof NKSystem) {
+                ((NKSystem) e.getPickedNode()).setSelectedImage();
+                canvas.setCursor(stopCursor);
+            }
+        }
+    }
+
+    @Override
+    public void mouseExited(PInputEvent e) {
+        super.mouseExited(e);
+        if (e.getButton() == MouseEvent.NOBUTTON) {
+            if (e.getPickedNode() instanceof NKSystem) {
+                ((NKSystem) e.getPickedNode()).setNormalImage();
+                canvas.setCursor(defaultCursor);
+            }
         }
     }
 }

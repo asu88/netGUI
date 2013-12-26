@@ -34,16 +34,15 @@ import java.util.*;
 public class NKHub extends NKNode {
 
     public static final long serialVersionUID = 1L;
-    private static final String fileImage = System.getProperty("NETLAB_HOME") + "/images/128x128/hub.png";
-    private static final String deleteFileImage = System.getProperty("NETLAB_HOME") + "/images/128x128/hubDel.png";
-    private static final String fileSelectedImage = System.getProperty("NETLAB_HOME") + "/images/128x128/hub_selected.png";
+    private static final String fileImage = System.getProperty("NETLAB_HOME") + "/images/new2/128x128/hub.png";
+    private static final String deleteFileImage = System.getProperty("NETLAB_HOME") + "/images/new2/128x128/hubDel.png";
+    private static final String fileSelectedImage = System.getProperty("NETLAB_HOME") + "/images/new2/128x128/hub_selected.png";
     private String netName;
     private ArrayList<NKConection> conections;
 
     /**
      * ***************************************************
-     * Crea un Hub
-	 ****************************************************
+     * Crea un Hub ***************************************************
      */
     public NKHub(String hubName, String netName) {
         super(hubName, fileImage, fileSelectedImage, deleteFileImage);
@@ -54,7 +53,7 @@ public class NKHub extends NKNode {
     /**
      * ***********************************************************
      * A�ade una conexi�n al nodo
-	 ************************************************************
+     * ***********************************************************
      */
     @Override
     public void addEdge(NKConection edge) {
@@ -67,7 +66,7 @@ public class NKHub extends NKNode {
     /**
      * ***********************************************************
      * Elimina una conexi�n con el nodo
-	 ************************************************************
+     * ***********************************************************
      */
     @Override
     public void removeEdge(NKConection edge) {
@@ -77,7 +76,7 @@ public class NKHub extends NKNode {
     /**
      * ***********************************************************
      * Devuelve todas las conexiones del nodo
-	 ************************************************************
+     * ***********************************************************
      */
     public ArrayList getEdges() {
         return conections;
@@ -87,7 +86,7 @@ public class NKHub extends NKNode {
      * ***********************************************************
      * Devuelve el nombre de red asignado al Hub (util cuando arrancamos un nodo
      * con par�metros UML para netkit)
-	 ************************************************************
+     * ***********************************************************
      */
     public String getNetName() {
         return netName;
@@ -97,7 +96,7 @@ public class NKHub extends NKNode {
      * ***********************************************************
      * Actualiza todas las conexiones del nodo para poder representarlas en
      * pantalla cuando el nodo es arrastrado
-	 ************************************************************
+     * ***********************************************************
      */
     @Override
     public void updateEdges() {
@@ -110,13 +109,13 @@ public class NKHub extends NKNode {
     /**
      * ***********************************************************
      * Posiciona el nombre del nodo en el icono
-	 ************************************************************
+     * ***********************************************************
      */
     @Override
     protected void ShowDisplayName(String name) {
         double height = this.getHeight(), width = this.getWidth();
-        PText tNode = new PText(name);
-        tNode.centerFullBoundsOnPoint((width / 2) - 10, height + 8);
+        PText tNode = new PText(name.toUpperCase());
+        tNode.centerFullBoundsOnPoint((width / 2) - 5, (height / 7));
         tNode.setPickable(false);
         tNode.setScale((float) 1.5);
         this.addChild(tNode);

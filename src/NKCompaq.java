@@ -1,4 +1,4 @@
-/*
+        /*
  * Copyright (C) 2005, 2006 
  * Santiago Carot Nemesio
  *
@@ -28,17 +28,18 @@
 
  */
 import edu.umd.cs.piccolo.nodes.*;
+import java.awt.Color;
 import java.awt.geom.*;
 import java.util.*;
 
 public class NKCompaq extends NKSystem {
 
     public static final long serialVersionUID = 1L;
-    private static final String fileImage = System.getProperty("NETLAB_HOME") + "/images/128x128/system2.png";
-    private static final String deleteFileImage = System.getProperty("NETLAB_HOME") + "/images/128x128/systemDel2.png";
-    private static final String fileSelectedImage = System.getProperty("NETLAB_HOME") + "/images/128x128/system_selected2.png";
-    private static final String fileStartedImage = System.getProperty("NETLAB_HOME") + "/images/128x128/systemStarted2.png";
-    private static final String fileSelectedStartedImage = System.getProperty("NETLAB_HOME") + "/images/128x128/systemStartedSelected2.png";
+    private static final String fileImage = System.getProperty("NETLAB_HOME") + "/images/new2/128x128/system5.png";
+    private static final String deleteFileImage = System.getProperty("NETLAB_HOME") + "/images/new2/128x128/systemDel5.png";
+    private static final String fileSelectedImage = System.getProperty("NETLAB_HOME") + "/images/new2/128x128/system_selected5.png";
+    private static final String fileStartedImage = System.getProperty("NETLAB_HOME") + "/images/new2/128x128/systemStarted5.png";
+    private static final String fileSelectedStartedImage = System.getProperty("NETLAB_HOME") + "/images/new2/128x128/systemStartedSelected5.png";
     //especificamos un rectangulo de delimitaci�n (Para calcular intersecciones)
     private static RectangleNodeDelimiter delimiter;
     private static final String eth0 = "eth0";
@@ -46,15 +47,16 @@ public class NKCompaq extends NKSystem {
     private NKConection edge;
     private HashMap<String, Ethernet> interfaces;
 
-    public NKCompaq(String name, LayersHandler handler) {
-        super(name, fileImage, fileSelectedImage, deleteFileImage, handler);
+    public NKCompaq(String name, Point2D position, LayersHandler handler) {
+        super(name, fileImage, fileSelectedImage, deleteFileImage, 
+                position, handler);
         //formatEthText(eth.getEthName());
 
         // for big icons
-        //delimiter = new RectangleNodeDelimiter(104.0,-104.0,78.0,-87.0);
+        delimiter = new RectangleNodeDelimiter(104.0,-104.0,78.0,-87.0);
 
         // for small icons
-        delimiter = new RectangleNodeDelimiter(80.0, -75.0, 60.0, -65.0);
+//        delimiter = new RectangleNodeDelimiter(80.0, -75.0, 60.0, -65.0);
         interfaces = new HashMap<String, Ethernet>();
         interfaces.put("eth0", eth);
     }
@@ -204,8 +206,9 @@ public class NKCompaq extends NKSystem {
     @Override
     protected void ShowDisplayName(String name) {
         double height = this.getHeight(), width = this.getWidth();
-        PText tNode = new PText(name);
-        tNode.centerFullBoundsOnPoint((width / 2) - 10, height);
+        PText tNode = new PText(name.toUpperCase());
+        tNode.setTextPaint(Color.WHITE);
+        tNode.centerFullBoundsOnPoint((width / 2.2), (height / 1.8));
         tNode.setPickable(false);
         tNode.setScale((float) 1.5);
         this.addChild(tNode);

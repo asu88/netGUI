@@ -79,25 +79,29 @@ public class ScanRoutersDemon extends Thread{
 ////    }
 
     private void lookFor(String vmAnswer, NKSystem node) {
-        for(int i=0 ; i<protocols.length; i++){
-            if (vmAnswer.contains(protocols[i])){
-                ((NKRouter)node).SetDemonName(protocols[i].toUpperCase());
-            }
-        }
-////        if (vmAnswer.contains("ospfd")){
-//////	    System.out.println("OSPFD found on router");
-////            ((NKRouter)node).SetDemonName("OSPFD");
-////            //((NKRouter)node).updateOSPFDImages();
-////        } else if (vmAnswer.contains("ripd")){
-//////	    System.out.println("RIPD found on router");
-////            ((NKRouter)node).SetDemonName("RIPD");
-////            //((NKRouter)node).updateRIPDImages();
-////        }else if (vmAnswer.contains("bgpd")){
-////            ((NKRouter)node).SetDemonName("BGPD");
-////        } else {
-//////	    System.out.println("No daemon found on router");
-////            ((NKRouter)node).SetDemonName("");
-////            //((NKRouter)node).updateStartedImages();
+////        for(int i=0 ; i<protocols.length; i++){
+////            if (vmAnswer.contains(protocols[i])){
+////                ((NKRouter)node).SetDemonName(protocols[i].toUpperCase());
+////            }
 ////        }
+        if (vmAnswer.contains("ospfd")){
+//	    System.out.println("OSPFD found on router");
+            ((NKRouter)node).enableOSPF();
+//            ((NKRouter)node).SetDemonName("OSPFD");
+            //((NKRouter)node).updateOSPFDImages();
+        } else if (vmAnswer.contains("ripd")){
+//	    System.out.println("RIPD found on router");
+            ((NKRouter)node).enableRIP();
+//            ((NKRouter)node).SetDemonName("RIPD");
+            //((NKRouter)node).updateRIPDImages();
+        }else if (vmAnswer.contains("bgpd")){
+//            ((NKRouter)node).SetDemonName("BGPD");
+            ((NKRouter)node).enableBGP();
+        } else {
+            ((NKRouter)node).disableAll();
+//	    System.out.println("No daemon found on router");
+//            ((NKRouter)node).SetDemonName("");
+            //((NKRouter)node).updateStartedImages();
+        }
     }   
 }

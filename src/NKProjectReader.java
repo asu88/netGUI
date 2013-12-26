@@ -73,7 +73,7 @@ public class NKProjectReader {
                 st = new StringTokenizer(line, ";");
                 aux = st.nextToken();
                 p = getLocation(aux);
-                n = getNode(line.substring(aux.length() + 2, line.length()));
+                n = getNode(line.substring(aux.length() + 2, line.length()), p);
                 if ((p != null) && (n != null)) {
                     insertNodeAtPosition(n, p);
                 } else {
@@ -150,24 +150,24 @@ public class NKProjectReader {
         }
     }
 
-    private NKNode getNode(String input) {
+    private NKNode getNode(String input, Point2D position) {
         String type, name;
         if ((input.indexOf("(") != -1) && input.endsWith(")")) {
             type = input.substring(0, input.indexOf("("));
             name = input.substring(input.indexOf("(") + 2, input.length() - 2);
-            return nodeType(type, name);
+            return nodeType(type, position, name);
         } else {
             return null;
         }
     }
 
-    private NKNode nodeType(String nType, String name) {
+    private NKNode nodeType(String nType, Point2D position, String name) {
         if (nType.equalsIgnoreCase("NKCompaq")) {
-            return new NKCompaq(name, handler);
+            return new NKCompaq(name, position, handler);
         } else if (nType.equalsIgnoreCase("NKRouter")) {
-            return new NKRouter(name, handler);
+            return new NKRouter(name, position, handler);
         } else if (nType.equalsIgnoreCase("NKSwitch")) {
-            return new NKSwitch(name, handler);
+            return new NKSwitch(name, position, handler);
         } else if (nType.equalsIgnoreCase("NKHub")) {
             return new NKHub(name, null);
         } else {

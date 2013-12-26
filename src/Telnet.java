@@ -16,7 +16,7 @@ import org.apache.commons.net.telnet.TelnetClient;
  *
  * @author Fran
  */
-public class Telnet{
+public class Telnet extends Thread{
     
     private InputStream in;
     private PrintStream out;
@@ -76,7 +76,7 @@ public class Telnet{
         }
     }
 
-    public String sendCommand(String command) {
+    public synchronized String sendCommand(String command) {
         try {
             write(command);
             return read();

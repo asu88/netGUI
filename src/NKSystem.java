@@ -28,18 +28,35 @@
  */
 import edu.umd.cs.piccolo.nodes.*;
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.util.*;
 
 public abstract class NKSystem extends NKNode {
 
     private boolean started;
     protected LayersHandler handler;
+    private Point2D position;
 
     public NKSystem(String name, String fileImage, String fileSelectedImage,
-            String deleteFileImage, LayersHandler handler) {
+            String deleteFileImage, Point2D position, LayersHandler handler) {
         super(name, fileImage, fileSelectedImage, deleteFileImage);
         started = false;
+        this.position = position;
         this.handler = handler;
+    }
+    
+    @Override
+    public double getX(){
+        return position.getX();
+    }
+    
+    @Override
+    public double getY(){
+        return position.getY();
+    }
+    
+    public void setPos(Point2D position){
+        this.position = position;
     }
 
     protected void setStarted(boolean run) {

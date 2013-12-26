@@ -41,10 +41,12 @@ public class AddRouteEventHandler implements ActionListener{
             JTextField net = new JTextField(10);
             JTextField netmask = new JTextField(10);
             JTextField GW = new JTextField(10);
+            JCheckBox permanent = new JCheckBox("Make changes permanent?");
             
             String routeTo = null;
 
             JPanel myPanel = new JPanel();
+            myPanel.setLayout(new GridLayout(0,1));
             
             if (type.indexOf("host") != -1){
                 myPanel.add(new JLabel("IP "));
@@ -52,6 +54,7 @@ public class AddRouteEventHandler implements ActionListener{
                 myPanel.add(Box.createHorizontalStrut(15)); // a spacer
                 myPanel.add(new JLabel("Gateway"));
                 myPanel.add(GW);
+                myPanel.add(permanent);
                 routeTo = "host";
                 int result = JOptionPane.showConfirmDialog(null, myPanel, nodeName + " : Add " + routeTo + " route" , JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
             
@@ -67,6 +70,9 @@ public class AddRouteEventHandler implements ActionListener{
                                 "Error adding route", 
                                 JOptionPane.ERROR_MESSAGE);
                     } else {
+                        if (permanent.isSelected()){
+                            telnet.sendCommand("echo -e 'up route add -host " + ip + " gw " + gw +"' >> /etc/network/interfaces");
+                        }
                         NetKitViewer.log.addText("> " + nodeName + ": " + "added " + routeTo + " route to " + ip);
                     }
                 }
@@ -79,6 +85,7 @@ public class AddRouteEventHandler implements ActionListener{
                 myPanel.add(Box.createHorizontalStrut(15)); // a spacer
                 myPanel.add(new JLabel("Gateway"));
                 myPanel.add(GW);
+                myPanel.add(permanent);
                 routeTo = "net";
                 int result = JOptionPane.showConfirmDialog(null, myPanel, nodeName + " : Add " + routeTo + " route" , JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
             
@@ -95,12 +102,16 @@ public class AddRouteEventHandler implements ActionListener{
                                 "Error adding route", 
                                 JOptionPane.ERROR_MESSAGE);
                     } else {
+                        if (permanent.isSelected()){
+                            telnet.sendCommand("echo -e 'up route add -net " + net2 + " netmask " + netm + " gw " + gw +"' >> /etc/network/interfaces");
+                        }
                         NetKitViewer.log.addText("> " + nodeName + ": " + "added " + routeTo + " route to " + net2);
                     }
                 }
             } else if (type.indexOf("Default") != -1){
                 myPanel.add(new JLabel("Gateway"));
                 myPanel.add(GW); 
+                myPanel.add(permanent);
                 routeTo = "default";
                 int result = JOptionPane.showConfirmDialog(null, myPanel, nodeName + " : Add " + routeTo + " route" , JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
             
@@ -115,6 +126,10 @@ public class AddRouteEventHandler implements ActionListener{
                                 "Error adding route", 
                                 JOptionPane.ERROR_MESSAGE);
                     } else {
+                        if (permanent.isSelected()){
+//                            telnet.sendCommand("sed -i.bak '/up route add default/d' /etc/network/interfaces");
+                            telnet.sendCommand("echo -e 'up route add default gw " + gw + "' >> /etc/network/interfaces");
+                        }
                         NetKitViewer.log.addText("> " + nodeName + ": " + "added " + routeTo + " route");
                     }
                 }

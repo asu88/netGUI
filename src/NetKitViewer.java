@@ -37,6 +37,7 @@ public class NetKitViewer {
     public static JFrame netGUIWindow = new JFrame();
     Container cont;
     public static Log log = new Log();
+    JSplitPane split;
 
     public class NoneSelectedButtonGroup extends ButtonGroup {
 
@@ -54,35 +55,29 @@ public class NetKitViewer {
 
     public NetKitViewer() {
         setNimbus();
-        netGUIWindow.setJMenuBar(createMenuBar());
-        toolBar = new JToolBar("NetKitBar");
-        toolBar.setOrientation(JToolBar.VERTICAL);
 
         cont = netGUIWindow.getContentPane();
         cont.setLayout(new BorderLayout());
-//        JScrollPane bar = new JScrollPane();
-//        bar.setLayout(new ScrollPaneLayout());
-//        bar.setPreferredSize(new Dimension(50,600));
-//        bar.getViewport().add(toolBar);
+
+        toolBar = new JToolBar("NetKitBar");
+        toolBar.setOrientation(JToolBar.VERTICAL);
         cont.add(toolBar, BorderLayout.WEST);
-//        cont.add(toolBar, BorderLayout.PAGE_START);
+
 
         JScrollPane mainPanel = new JScrollPane();
         mainPanel.setLayout(new ScrollPaneLayout());
         mainPanel.setPreferredSize(new Dimension(1000, 600));
         netkitWindow = new NetKitGUI(1000, 600);
+        mainPanel.getViewport().add(netkitWindow);
+
         addButtons(toolBar);
-        //final PScrollPane scrollPane = new PScrollPane(netkitWindow);
-        mainPanel.getViewport().add(netkitWindow); //scrollPane);
-        
-        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, mainPanel, log);
+
+        split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, mainPanel, log);
         split.setDividerLocation(1000);
-        
+
         cont.add(split, BorderLayout.CENTER);
-//        cont.add(mainPanel, BorderLayout.CENTER);
 
-//        cont.add(log, BorderLayout.EAST);
-
+        netGUIWindow.setJMenuBar(createMenuBar());
         netGUIWindow.pack();
         netGUIWindow.setTitle("NetGUI");
         netGUIWindow.setVisible(true);
@@ -98,24 +93,9 @@ public class NetKitViewer {
                 JOptionPane.INFORMATION_MESSAGE,
                 new ImageIcon(System.getProperty("NETLAB_HOME") + "/images/other/gsyc.png"));
 
-//        startInfo.showMessageDialog(this,
-//                "GSyC/Mobiquo, Grupo de Sistemas y Comunicaciones\n"
-//                + "Universidad Rey Juan Carlos (URJC)\n"
-//                + "Authors: Santiago Carot Nemesio & Francisco Javier Torcal Gonzalez\n"
-//                + "GNU GPL v2 License",
-//                "NetGUI version 0.4.10",
-//                JOptionPane.INFORMATION_MESSAGE,
-//                new ImageIcon(System.getProperty("NETLAB_HOME") + "/images/other/gsyc.png"));
-
-
 
         //obtenemos el directorio de trabajo
         initWorkSpaceForNetKit();
-
-//        while(true){
-//            netGUIWindow.repaint();
-//        }
-
 
     }
 
@@ -147,17 +127,24 @@ public class NetKitViewer {
         netkitWindow.addConexion();
     }
 
+    private void moveActionPerformed(ActionEvent evt) {
+        netkitWindow.enableMoveMode();
+    }
+
+    private void zoomActionPerformed(ActionEvent evt) {
+        netkitWindow.enableZoomMode();
+    }
+
     private void addButtons(JToolBar toolBar) {
         NoneSelectedButtonGroup group = new NoneSelectedButtonGroup();
 
-        
-        
-        JToggleButton addTerminal = new JToggleButton(new ImageIcon(System.getProperty("NETLAB_HOME") + "/images/32x32/system.png"));
+        // System button 
+        JToggleButton addTerminal = new JToggleButton(new ImageIcon(System.getProperty("NETLAB_HOME") + "/images/new2/icons/32x32/system.png"));
         addTerminal.setToolTipText("new host");
         group.add(addTerminal);
         toolBar.add(addTerminal);
 
-        JToggleButton addRouter = new JToggleButton(new ImageIcon(System.getProperty("NETLAB_HOME") + "/images/32x32/router.png"));
+        JToggleButton addRouter = new JToggleButton(new ImageIcon(System.getProperty("NETLAB_HOME") + "/images/new2/icons/32x32/router.png"));
         addRouter.setToolTipText("new router");
         group.add(addRouter);
         toolBar.add(addRouter);
@@ -168,7 +155,7 @@ public class NetKitViewer {
         group.add(addSwitch);
         toolBar.add(addSwitch);
 
-        JToggleButton addHub = new JToggleButton(new ImageIcon(System.getProperty("NETLAB_HOME") + "/images/32x32/hub.png"));
+        JToggleButton addHub = new JToggleButton(new ImageIcon(System.getProperty("NETLAB_HOME") + "/images/new2/icons/32x32/hub.png"));
         addHub.setToolTipText("new hub");
         group.add(addHub);
         toolBar.add(addHub);
@@ -177,7 +164,7 @@ public class NetKitViewer {
         addConexion.setToolTipText("connect...");
         group.add(addConexion);
         toolBar.add(addConexion);
-        
+
 
         toolBar.addSeparator();
 
@@ -242,7 +229,6 @@ public class NetKitViewer {
         });
 
         toolBar.addSeparator();
-        toolBar.addSeparator();
 
         JToggleButton runButton = new JToggleButton(new ImageIcon(System.getProperty("NETLAB_HOME") + "/images/32x32/run.png"));
         runButton.setToolTipText("start host/router/switch");
@@ -297,8 +283,32 @@ public class NetKitViewer {
             }
         });
 
-        
+        JToggleButton moveButton = new JToggleButton(new ImageIcon(System.getProperty("NETLAB_HOME") + "/images/32x32/move.png"));
+        moveButton.setToolTipText("move all");
+        toolBar.add(moveButton);
+
+        moveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                moveActionPerformed(evt);
+            }
+        });
+
+        JToggleButton zoomButton = new JToggleButton(new ImageIcon(System.getProperty("NETLAB_HOME") + "/images/32x32/lupa.png"));
+        zoomButton.setToolTipText("zoom");
+        toolBar.add(zoomButton);
+
+        zoomButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                zoomActionPerformed(evt);
+            }
+        });
+
+
         group.add(captureButton);
+        group.add(moveButton);
+        group.add(zoomButton);
         group.add(runButton);
         group.add(stopButton);
         group.add(restartButton);
@@ -669,6 +679,57 @@ public class NetKitViewer {
 
 
         //*************************************************************
+        //Creamos el menu de Preferencias
+        //*************************************************************
+        JMenu preferences = new JMenu("Preferences");
+        menuBar.add(preferences);
+
+        JMenuItem ip = new JMenuItem("IP options");
+        ip.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String[] IPCases = {"Show IPv4", "Show IPv6", "Show both"};
+                String selectedOption = (String) JOptionPane.showInputDialog(null,
+                        "Select one option: ",
+                        "IP options",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        IPCases,
+                        IPCases[0]);
+
+                if (selectedOption.contains("IPv4")) {
+                    UtilNetGUI.setIpv4AddrShow(true);
+                    UtilNetGUI.setIpv6AddrShow(false);
+                } else if (selectedOption.contains("IPv6")) {
+                    UtilNetGUI.setIpv4AddrShow(false);
+                    UtilNetGUI.setIpv6AddrShow(true);
+                } else if (selectedOption.contains("both")) {
+                    UtilNetGUI.setIpv4AddrShow(true);
+                    UtilNetGUI.setIpv6AddrShow(true);
+                }
+
+            }
+        });
+        preferences.add(ip);
+
+        JCheckBoxMenuItem logOpt = new JCheckBoxMenuItem("Log panel");
+        logOpt.setState(true);
+
+        logOpt.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                split.getRightComponent().setVisible(!split.getRightComponent().isVisible());
+                if (split.getRightComponent().isVisible()){
+                    split.setDividerLocation(0.82);
+                } else {
+                    split.setDividerLocation(1);
+                }
+                
+            }
+        });
+
+        preferences.add(logOpt);
+        //*************************************************************
         //Creamos el menu de Ayuda
         //*************************************************************
         JMenu helpMenu = new JMenu("Help");
@@ -687,7 +748,7 @@ public class NetKitViewer {
                 JOptionPane.showMessageDialog(SwingUtilities.getRoot((Component) evt.getSource()),
                         "GSyC/Mobiquo, Grupo de Sistemas y Comunicaciones\n"
                         + "Universidad Rey Juan Carlos (URJC)\n"
-                        + "Author: Santiago Carot Nemesio\n"
+                        + "Author: Santiago Carot Nemesio & Francisco Javier Torcal González\n"
                         + "GNU GPL v2 License",
                         "NetGUI version 0.4.10",
                         JOptionPane.INFORMATION_MESSAGE,

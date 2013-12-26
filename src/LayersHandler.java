@@ -102,7 +102,7 @@ public class LayersHandler {
 
     public void addNewTerminal(Point2D globalPoint2D, String terminalName) {
         if (!nodeNameExists(terminalName)) {
-            NKCompaq terminal = new NKCompaq(terminalName, this);
+            NKCompaq terminal = new NKCompaq(terminalName, globalPoint2D, this);
             terminal.centerFullBoundsOnPoint(globalPoint2D.getX(), globalPoint2D.getY());
             nodeLayer.addChild(terminal);
             UtilNetGUI.setAplicationStatusChange(true);
@@ -112,14 +112,14 @@ public class LayersHandler {
     }
 
     public void addNewRouter(Point2D globalPoint2D, String routerName) {
-        NKRouter router = new NKRouter(routerName, this);
+        NKRouter router = new NKRouter(routerName, globalPoint2D, this);
         router.centerFullBoundsOnPoint(globalPoint2D.getX(), globalPoint2D.getY());
         nodeLayer.addChild(router);
         UtilNetGUI.setAplicationStatusChange(true);
     }
 
     public void addNewSwitch(Point2D globalPoint2D, String switchName) {
-        NKSwitch s = new NKSwitch(switchName, this);
+        NKSwitch s = new NKSwitch(switchName, globalPoint2D, this);
         s.centerFullBoundsOnPoint(globalPoint2D.getX(), globalPoint2D.getY());
         nodeLayer.addChild(s);
         UtilNetGUI.setAplicationStatusChange(true);

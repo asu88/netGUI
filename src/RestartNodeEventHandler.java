@@ -20,16 +20,27 @@
  *  
  */
 
+import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.event.*;
+import java.awt.Cursor;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 
 public class RestartNodeEventHandler extends PBasicInputEventHandler {
 
-    private LayersHandler handler;
+    private PCanvas canvas;
+    Toolkit toolkit = Toolkit.getDefaultToolkit();
+    Point hotSpot = new Point(0,0);
+    // Imagenes de mano abierta y cerrada
+    Image restart = toolkit.getImage(System.getProperty("NETLAB_HOME") + "/images/32x32/restart_cursor.png");    
+    Cursor restartCursor = toolkit.createCustomCursor(restart, hotSpot, "run");
+    Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
 
-    public RestartNodeEventHandler(LayersHandler lHandler) {
+    public RestartNodeEventHandler(PCanvas canvas) {
         super();
-        handler = lHandler;
+        this.canvas = canvas;
     }
 
     @Override
@@ -54,6 +65,29 @@ public class RestartNodeEventHandler extends PBasicInputEventHandler {
                 } catch (Exception ex) {
                     System.out.println("Error " + ex);
                 }
+            }
+        }
+    }
+    
+    @Override
+    public void mouseEntered(PInputEvent e) {
+        super.mouseEntered(e);
+        //canvas.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        if (e.getButton() == MouseEvent.NOBUTTON) {
+            if (e.getPickedNode() instanceof NKSystem) {
+                ((NKSystem) e.getPickedNode()).setSelectedImage();
+                canvas.setCursor(restartCursor);
+            }
+        }
+    }
+
+    @Override
+    public void mouseExited(PInputEvent e) {
+        super.mouseExited(e);
+        if (e.getButton() == MouseEvent.NOBUTTON) {
+            if (e.getPickedNode() instanceof NKSystem) {
+                ((NKSystem) e.getPickedNode()).setNormalImage();
+                canvas.setCursor(defaultCursor);
             }
         }
     }

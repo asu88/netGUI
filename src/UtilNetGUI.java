@@ -220,4 +220,14 @@ public class UtilNetGUI {
     public static boolean getIPv6AddrShowVar() {
         return ipv6AddrShow;
     }
+
+    public static void setIpv4AddrShow(boolean ipv4AddrShow) {
+        UtilNetGUI.ipv4AddrShow = ipv4AddrShow;
+    }
+
+    public static void setIpv6AddrShow(boolean ipv6AddrShow) {
+        UtilNetGUI.ipv6AddrShow = ipv6AddrShow;
+    }
+    
+    
 }

@@ -56,6 +56,7 @@ public abstract class NKNode extends PImage {
      * Devuelve el nombre del nodo
 	 *******************************************
      */
+    @Override
     public String getName() {
         return name;
     }
@@ -117,6 +118,8 @@ public abstract class NKNode extends PImage {
     public void setDeleteImage() {
         setImage(deleted_image.getImage());
     }
+    
+    
 
     /**
      * ***********************************************************

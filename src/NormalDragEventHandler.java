@@ -22,7 +22,6 @@
 
 import edu.umd.cs.piccolo.PCanvas;
 import edu.umd.cs.piccolo.event.*;
-import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import javax.swing.*;
@@ -38,6 +37,49 @@ public class NormalDragEventHandler extends PDragEventHandler {
         setEventFilter(filter);
     }
 
+    private void enabledDisabled(PInputEvent e, JMenuItem menuItem) {
+        if (!((NKSystem) e.getPickedNode()).isStarted()) {
+            menuItem.setEnabled(false);
+        }
+    }
+
+    private void enabledDisabledRouterOptions(NKRouter router, JMenuItem enable, JMenuItem disable, int tag) {
+        if (router.isStarted()) {
+            switch (tag) {
+                case 0:
+                    if (!router.isRunningBGP()) {
+                        enable.setEnabled(true);
+                        disable.setEnabled(false);
+                    } else {
+                        enable.setEnabled(false);
+                        disable.setEnabled(true);
+                    }
+                    break;
+                case 1:
+                    if (!router.isRunningOSPF()) {
+                        enable.setEnabled(true);
+                        disable.setEnabled(false);
+                    } else {
+                        enable.setEnabled(false);
+                        disable.setEnabled(true);
+                    }
+                    break;
+                case 2:
+                    if (!router.isRunningRIP()) {
+                        enable.setEnabled(true);
+                        disable.setEnabled(false);
+                    } else {
+                        enable.setEnabled(false);
+                        disable.setEnabled(true);
+                    }
+                    break;
+            }
+        } else {
+            enable.setEnabled(false);
+            disable.setEnabled(false);
+        }
+    }
+
     @Override
     public void mouseClicked(PInputEvent e) {
         super.mouseClicked(e);
@@ -51,80 +93,122 @@ public class NormalDragEventHandler extends PDragEventHandler {
                     ((NKSystem) e.getPickedNode()).startNetKit();
                 }
             }
-        } else if (e.getButton() == MouseEvent.BUTTON3){
+        } else if ((e.getPickedNode() instanceof NKSystem) && (e.getButton() == MouseEvent.BUTTON3)) {
             // Create a new popup menu
             JPopupMenu Pmenu;
             JMenuItem menuItem;
             Pmenu = new JPopupMenu();
-            
+
             // Introduce the node's name as title
-            
+
             Pmenu.add(new JLabel("  " + ((NKSystem) e.getPickedNode()).getName()));
             Pmenu.addSeparator();
-            
+
             // Create and include a new option in popup that will be enabled
             // only if the node is started: Change IP
             menuItem = new JMenuItem("Change IP");
-            menuItem.addActionListener(new NodeOptionsEventHandler(((NKNode)e.getPickedNode())));
-            if (!((NKSystem)e.getPickedNode()).isStarted()){
-                menuItem.setEnabled(false);
-            }
+            menuItem.addActionListener(new NodeOptionsEventHandler(((NKNode) e.getPickedNode())));
+            enabledDisabled(e, menuItem);
             Pmenu.add(menuItem);
-            
+
             // Create a new menu for route options
             JMenu route;
             route = new JMenu("Routes");
-            
+
             // Create and include new options in routes submenu that will be
             // enabled only when the node is started
-            
+
             // Add route feature menu: We can choose between adding a host, net
             // or default route
             JMenu addRoute = new JMenu("Add route");
             menuItem = new JMenuItem("To host");
-            menuItem.addActionListener(new AddRouteEventHandler(((NKNode)e.getPickedNode())));
+            menuItem.addActionListener(new AddRouteEventHandler(((NKNode) e.getPickedNode())));
+            enabledDisabled(e, menuItem);
             addRoute.add(menuItem);
             menuItem = new JMenuItem("To net");
-            menuItem.addActionListener(new AddRouteEventHandler(((NKNode)e.getPickedNode())));
+            menuItem.addActionListener(new AddRouteEventHandler(((NKNode) e.getPickedNode())));
+            enabledDisabled(e, menuItem);
             addRoute.add(menuItem);
             menuItem = new JMenuItem("Default");
-            menuItem.addActionListener(new AddRouteEventHandler(((NKNode)e.getPickedNode())));
+            menuItem.addActionListener(new AddRouteEventHandler(((NKNode) e.getPickedNode())));
+            enabledDisabled(e, menuItem);
             addRoute.add(menuItem);
 
             route.add(addRoute);
 //          -------------------------------------------------------------------------------------
-            
+
             // Delete route feature: We can choose between deleting a host, net
             // or default route
             JMenu deleteRoute = new JMenu("Delete route");
             menuItem = new JMenuItem("To host");
-            menuItem.addActionListener(new DeleteRouteEventHandler(((NKNode)e.getPickedNode())));
+            menuItem.addActionListener(new DeleteRouteEventHandler(((NKNode) e.getPickedNode())));
+            enabledDisabled(e, menuItem);
             deleteRoute.add(menuItem);
             menuItem = new JMenuItem("To net");
-            menuItem.addActionListener(new DeleteRouteEventHandler(((NKNode)e.getPickedNode())));
+            menuItem.addActionListener(new DeleteRouteEventHandler(((NKNode) e.getPickedNode())));
+            enabledDisabled(e, menuItem);
             deleteRoute.add(menuItem);
             menuItem = new JMenuItem("Default");
-            menuItem.addActionListener(new DeleteRouteEventHandler(((NKNode)e.getPickedNode())));
+            menuItem.addActionListener(new DeleteRouteEventHandler(((NKNode) e.getPickedNode())));
+            enabledDisabled(e, menuItem);
             deleteRoute.add(menuItem);
 
             route.add(deleteRoute);
 //          -------------------------------------------------------------------------------------
-            
+
             // Show route table feature
             menuItem = new JMenuItem("Show route table");
-            menuItem.addActionListener(new NodeOptionsEventHandler(((NKNode)e.getPickedNode())));
-            if (!((NKSystem)e.getPickedNode()).isStarted()){
-                menuItem.setEnabled(false);
-            }
+            menuItem.addActionListener(new NodeOptionsEventHandler(((NKNode) e.getPickedNode())));
+            enabledDisabled(e, menuItem);
             route.add(menuItem);
-            
-//            Pmenu.add(menuItem);
-            // Add route menu to the popup and configure the position in screen
+
             Pmenu.add(route);
-            Pmenu.show(((Component)e.getComponent()), (int)e.getPosition().getX(), (int)e.getPosition().getY());
-//            Pmenu.show(((Component)e.getComponent()), ((Component)e.getComponent()).getX(), ((Component)e.getComponent()).getY());
-//            System.out.println((int)e.getPosition().getX() + "," + (int)e.getPosition().getY());
-            
+
+            if (e.getPickedNode() instanceof NKRouter) {
+                JMenuItem menuItem1 = new JMenuItem("Enable");
+                JMenuItem menuItem2 = new JMenuItem("Disable");
+                // Fijar 4 JCheckMenuItems para estos 4 casos y para así poder 
+                // manejarlos desde otras clases
+                JMenu runProtocol = new JMenu("Protocols");
+                // Submenu BGP
+                JMenu bgp = new JMenu("BGP");
+                // Propiedades de BGP
+                menuItem1.addActionListener(new EnableRouterProtocolEventHandler("BGP", ((NKNode) e.getPickedNode())));
+                bgp.add(menuItem1);
+                menuItem2.addActionListener(new DisableRouterProtocolEventHandler("BGP", ((NKNode) e.getPickedNode())));
+                bgp.add(menuItem2);
+                runProtocol.add(bgp);
+                enabledDisabledRouterOptions((NKRouter) e.getPickedNode(), menuItem1, menuItem2, 0);
+
+                // Submenu OSPF
+                JMenu ospf = new JMenu("OSPF");
+                // Propiedades de ospf
+                menuItem1 = new JMenuItem("Enable");
+                menuItem2 = new JMenuItem("Disable");
+                menuItem1.addActionListener(new EnableRouterProtocolEventHandler("OSPF", ((NKNode) e.getPickedNode())));
+                ospf.add(menuItem1);
+                menuItem2.addActionListener(new DisableRouterProtocolEventHandler("OSPF", ((NKNode) e.getPickedNode())));
+                ospf.add(menuItem2);
+                runProtocol.add(ospf);
+                enabledDisabledRouterOptions((NKRouter) e.getPickedNode(), menuItem1, menuItem2, 1);
+
+                // Submenu rip
+                JMenu rip = new JMenu("RIP");
+                // Propiedades de rip
+                menuItem1 = new JMenuItem("Enable");
+                menuItem2 = new JMenuItem("Disable");
+                menuItem1.addActionListener(new EnableRouterProtocolEventHandler("RIP", ((NKNode) e.getPickedNode())));
+                rip.add(menuItem1);
+                menuItem2.addActionListener(new DisableRouterProtocolEventHandler("RIP", ((NKNode) e.getPickedNode())));
+                rip.add(menuItem2);
+                runProtocol.add(rip);
+                enabledDisabledRouterOptions((NKRouter) e.getPickedNode(), menuItem1, menuItem2, 2);
+
+                Pmenu.add(runProtocol);
+            }
+
+            Pmenu.show(canvas, (int) e.getCanvasPosition().getX(), (int) e.getCanvasPosition().getY());
+
         } else if (e.getButton() == MouseEvent.BUTTON1) {
             if (e.getPickedNode() instanceof NKSystem) {
                 if (((NKSystem) e.getPickedNode()).isStarted()) {
@@ -182,5 +266,8 @@ public class NormalDragEventHandler extends PDragEventHandler {
         super.drag(e);
         NKNode pNode = (NKNode) e.getPickedNode();
         pNode.updateEdges();
+        if (e.getPickedNode() instanceof NKSystem) {
+            ((NKSystem) e.getPickedNode()).setPos(e.getPosition());
+        }
     }
 }

@@ -35,11 +35,11 @@ import java.util.*;
 public class NKSwitch extends NKSystem {
 
     public static final long serialVersionUID = 1L;
-    private static final String fileImage = System.getProperty("NETLAB_HOME") + "/images/128x128/switch.png";
-    private static final String deleteFileImage = System.getProperty("NETLAB_HOME") + "/images/128x128/switchDel.png";
-    private static final String fileSelectedImage = System.getProperty("NETLAB_HOME") + "/images/128x128/switch_selected.png";
-    private static final String fileStartedImage = System.getProperty("NETLAB_HOME") + "/images/128x128/switchStarted.png";
-    private static final String fileSelectedStartedImage = System.getProperty("NETLAB_HOME") + "/images/128x128/switchStartedSelected.png";
+    private static final String fileImage = System.getProperty("NETLAB_HOME") + "/images/new2/128x128/switch.png";
+    private static final String deleteFileImage = System.getProperty("NETLAB_HOME") + "/images/new2/128x128/switchDel.png";
+    private static final String fileSelectedImage = System.getProperty("NETLAB_HOME") + "/images/new2/128x128/switch_selected.png";
+    private static final String fileStartedImage = System.getProperty("NETLAB_HOME") + "/images/new2/128x128/switchStarted.png";
+    private static final String fileSelectedStartedImage = System.getProperty("NETLAB_HOME") + "/images/new2/128x128/switchStartedSelected.png";
     private static final String eth = "eth";
     //Almacenaremos un array con todas las referencias de las conexiones que mantenga
     //abiertas este nodo.
@@ -49,8 +49,9 @@ public class NKSwitch extends NKSystem {
     //especificamos un rectangulo de delimitaci�n (Para calcular intersecciones)
     private final RectangleNodeDelimiter delimiter;
 
-    public NKSwitch(String name, LayersHandler handler) {
-        super(name, fileImage, fileSelectedImage, deleteFileImage, handler);
+    public NKSwitch(String name, Point2D position, LayersHandler handler) {
+        super(name, fileImage, fileSelectedImage, deleteFileImage, 
+                position, handler);
         conections = new ArrayList<NKConection>();
         interfaces = new HashMap<String, Ethernet>();
         delimiter = new RectangleNodeDelimiter(61.0, -68.0, 35.0, -44.0);
@@ -291,8 +292,8 @@ public class NKSwitch extends NKSystem {
     @Override
     protected void ShowDisplayName(String name) {
         double height = this.getHeight(), width = this.getWidth();
-        PText tNode = new PText(name);
-        tNode.centerFullBoundsOnPoint((width / 2) - 10, height);
+        PText tNode = new PText(name.toUpperCase());
+        tNode.centerFullBoundsOnPoint((width / 2) , (height/2) /2);
         tNode.setPickable(false);
         tNode.setScale((float) 1.5);
         this.addChild(tNode);

@@ -27,6 +27,7 @@
  **********************************************************************
 
  */
+import edu.umd.cs.piccolo.nodes.PImage;
 import edu.umd.cs.piccolo.nodes.PText;
 import java.awt.geom.*;
 import java.util.*;
@@ -34,15 +35,15 @@ import java.util.*;
 public class NKRouter extends NKSystem {
 
     public static final long serialVersionUID = 1L;
-    private static final String fileStartedImageRIPD = System.getProperty("NETLAB_HOME") + "/images/128x128/router_ripd.png";
-    private static final String fileStartedImageOSPFD = System.getProperty("NETLAB_HOME") + "/images/128x128/router_ospfd.png";
-    private static final String fileStartedSelectedImageRIPD = System.getProperty("NETLAB_HOME") + "/images/128x128/routerSelected_ripd.png";
-    private static final String fileStartedSelectedOSPFD = System.getProperty("NETLAB_HOME") + "/images/128x128/routerSelected_ospfd.png";
-    private static final String fileImage = System.getProperty("NETLAB_HOME") + "/images/128x128/router2.png";
-    private static final String deleteFileImage = System.getProperty("NETLAB_HOME") + "/images/128x128/routerDel2.png";
-    private static final String fileSelectedImage = System.getProperty("NETLAB_HOME") + "/images/128x128/router_selected2.png";
-    private static final String fileStartedImage = System.getProperty("NETLAB_HOME") + "/images/128x128/routerStarted2.png";
-    private static final String fileSelectedStartedImage = System.getProperty("NETLAB_HOME") + "/images/128x128/routerStartedSelected2.png";
+//    private static final String fileStartedImageRIPD = System.getProperty("NETLAB_HOME") + "/images/128x128/router_ripd.png";
+//    private static final String fileStartedImageOSPFD = System.getProperty("NETLAB_HOME") + "/images/128x128/router_ospfd.png";
+//    private static final String fileStartedSelectedImageRIPD = System.getProperty("NETLAB_HOME") + "/images/128x128/routerSelected_ripd.png";
+//    private static final String fileStartedSelectedOSPFD = System.getProperty("NETLAB_HOME") + "/images/128x128/routerSelected_ospfd.png";
+    private static final String fileImage = System.getProperty("NETLAB_HOME") + "/images/new2/128x128/router2.png";
+    private static final String deleteFileImage = System.getProperty("NETLAB_HOME") + "/images/new2/128x128/routerDel2.png";
+    private static final String fileSelectedImage = System.getProperty("NETLAB_HOME") + "/images/new2/128x128/router_selected2.png";
+    private static final String fileStartedImage = System.getProperty("NETLAB_HOME") + "/images/new2/128x128/routerStarted2.png";
+    private static final String fileSelectedStartedImage = System.getProperty("NETLAB_HOME") + "/images/new2/128x128/routerStartedSelected2.png";
     private static final String eth = "eth";
     //Almacenaremos un array con todas las referencias de las conexiones que mantenga
     //abiertas este nodo.
@@ -51,9 +52,19 @@ public class NKRouter extends NKSystem {
     private HashMap<String, Ethernet> interfaces;
     //especificamos un rectangulo de delimitaci�n (Para calcular intersecciones)
     private final RectangleNodeDelimiter delimiter;
+    // especificamos 3 imagenes que se haran visibles o no en funcion del protocolo
+    // de encaminamiento que funcione en el router
+    PImage ospfd = new PImage(System.getProperty("NETLAB_HOME") + "/images/new2/marks/o.png");
+    PImage bgpd = new PImage(System.getProperty("NETLAB_HOME") + "/images/new2/marks/b.png");
+    PImage ripd = new PImage(System.getProperty("NETLAB_HOME") + "/images/new2/marks/r.png");
+    
+    private boolean runningBGP = false;
+    private boolean runningOSPF = false;
+    private boolean runningRIP = false;
 
-    public NKRouter(String name, LayersHandler handler) {
-        super(name, fileImage, fileSelectedImage, deleteFileImage, handler);
+    public NKRouter(String name, Point2D position, LayersHandler handler) {
+        super(name, fileImage, fileSelectedImage, deleteFileImage,
+                position, handler);
         conections = new ArrayList<NKConection>();
         interfaces = new HashMap<String, Ethernet>();
 
@@ -62,14 +73,30 @@ public class NKRouter extends NKSystem {
 
         //small icons
         delimiter = new RectangleNodeDelimiter(75.0, -70.0, 50.0, -50.0);
+
         // Fijamos el campo para el demonio
         CreateDemonField();
+        InitZebraImages();
     }
+
+    public boolean isRunningBGP() {
+        return runningBGP;
+    }
+
+    public boolean isRunningOSPF() {
+        return runningOSPF;
+    }
+
+    public boolean isRunningRIP() {
+        return runningRIP;
+    }
+    
+    
 
     /**
      * ***********************************************************
      * A�ade una conexi�n al nodo
-	 ************************************************************
+     * ***********************************************************
      */
     @Override
     public synchronized void addEdge(NKConection edge) {
@@ -86,7 +113,7 @@ public class NKRouter extends NKSystem {
     /**
      * ***********************************************************
      * Elimina una conexi�n con el nodo
-	 ************************************************************
+     * ***********************************************************
      */
     @Override
     public synchronized void removeEdge(NKConection edge) {
@@ -104,7 +131,7 @@ public class NKRouter extends NKSystem {
     /**
      * ***********************************************************
      * Devuelve todas las conexiones del nodo
-	 ************************************************************
+     * ***********************************************************
      */
     public ArrayList getEdges() {
         return conections;
@@ -114,7 +141,7 @@ public class NKRouter extends NKSystem {
      * ***********************************************************
      * Actualiza todas las conexiones del nodo para poder representarlas en
      * pantalla cuando el nodo es arrastrado
-	 ************************************************************
+     * ***********************************************************
      */
     @Override
     public void updateEdges() {
@@ -128,7 +155,6 @@ public class NKRouter extends NKSystem {
     public void startNetKit() {
         if (!isStarted()) {
             String cmd = vstartCmdGen();
-            System.out.println("COMANDO: " + cmd);
             try {
                 Process proc;
                 proc = Runtime.getRuntime().exec(cmd, null);
@@ -141,7 +167,6 @@ public class NKRouter extends NKSystem {
             }
         }
     }
-    
 //////    // Metodos para variar la imagen cuando corra algun demonio en router
 //////    
 //////    protected void updateRIPDImages(){
@@ -153,25 +178,88 @@ public class NKRouter extends NKSystem {
 //////        changeSelectedImage(fileStartedSelectedOSPFD); // Crear imagen para seleccionado
 //////        changeNormalImage(fileStartedImageOSPFD);
 //////    }
-
     // Metodo para variar una etiqueta en lugar de la imagen completa
     private PText tNode;
-    
-    private void CreateDemonField(){
+
+    private void CreateDemonField() {
         double height = this.getHeight(), width = this.getWidth();
         tNode = new PText();
-        tNode.centerFullBoundsOnPoint((width / 8), (height/2));
+        tNode.centerFullBoundsOnPoint((width / 8), (height / 2));
         tNode.setPickable(false);
         tNode.setScale((float) 1.5);
         this.addChild(tNode);
     }
-    
-    protected void SetDemonName(String name) {
-        
-        tNode.setText(name);
-        
+
+    private void InitZebraImages() {
+        bgpd.centerFullBoundsOnPoint(20, 20);
+        bgpd.setPickable(false);
+        this.addChild(bgpd);
+        disableBGP();
+
+        ospfd.centerFullBoundsOnPoint(this.getWidth() - 20, 20);
+        ospfd.setPickable(false);
+        this.addChild(ospfd);
+        disableOSPF();
+
+//        ripd.centerFullBoundsOnPoint(20, this.getHeight() - 20);
+        ripd.centerFullBoundsOnPoint(this.getWidth() / 2, 20);
+        ripd.setPickable(false);
+        this.addChild(ripd);
+        disableRIP();
     }
     
+    public void enableBGP(){
+        bgpd.setVisible(true);
+        runningBGP = true;
+        disableOSPF();
+        disableRIP();
+    }
+    
+    public void enableOSPF(){
+        ospfd.setVisible(true);
+        runningOSPF = true;
+        disableBGP();
+        disableRIP();
+    }
+    
+    public void enableRIP(){
+        ripd.setVisible(true);
+        runningRIP = true;
+        disableBGP();
+        disableOSPF();
+    }
+    
+    private void disableBGP(){
+        bgpd.setVisible(false);
+        runningBGP = false;
+    }
+    
+    private void disableOSPF(){
+        ospfd.setVisible(false);
+        runningOSPF = false;
+    }
+    
+    private void disableRIP(){
+        ripd.setVisible(false);
+        runningRIP = false;
+    }
+    
+    public void disableAll(){
+        bgpd.setVisible(false);
+        ospfd.setVisible(false);
+        ripd.setVisible(false);
+        
+        runningBGP = false;
+        runningOSPF = false;
+        runningRIP = false;
+    }
+
+    protected void SetDemonName(String name) {
+
+        tNode.setText(name);
+
+    }
+
     @Override
     protected void updateStartedImages() {
         changeSelectedImage(fileSelectedStartedImage);
@@ -189,7 +277,7 @@ public class NKRouter extends NKSystem {
      * ***************************************************************
      * Los nodos se conectan a la red �nicamente a trav�s de hubs El nodo accede
      * a ellos para obtener el nombre de red.
-	 ****************************************************************
+     * ***************************************************************
      */
     private String getNetName(NKConection edge) {
         //Si es un NKDirectConection es porque estan dos routers conectados directamente
@@ -205,8 +293,7 @@ public class NKRouter extends NKSystem {
     /**
      * ***************************************************************
      * Genera el comando vstart con los par�metros necesarios para arrancar
-     * netkit
-	 ****************************************************************
+     * netkit ***************************************************************
      */
     private synchronized String vstartCmdGen() {
         if (conections.isEmpty()) {
@@ -269,5 +356,15 @@ public class NKRouter extends NKSystem {
                 (interfaces.get(net)).setIp(null);
             }
         }
+    }
+
+    @Override
+    protected void ShowDisplayName(String name) {
+        double height = this.getHeight(), width = this.getWidth();
+        PText nodeName = new PText(name.toUpperCase());
+        nodeName.centerFullBoundsOnPoint((width / 2.5), (height / 1.75));
+        nodeName.setPickable(false);
+        nodeName.setScale((float) 1.5);
+        this.addChild(nodeName);
     }
 }

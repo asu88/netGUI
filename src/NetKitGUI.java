@@ -57,8 +57,12 @@ public class NetKitGUI extends PSwingCanvas {
     private boolean restartNodeHandlerEnabled = false;
     //Manejador para mover y arrastrar nodos (activado por defecto)
     private boolean normalHandlerEnabled = true;
-    
     public ScanRoutersDemon scanRouters;
+    private boolean moveHandlerEnabled = false;
+    private boolean zoomHandlerEnabled = false;
+    private MouseWheelZoomEventHandler zoomMouse = new MouseWheelZoomEventHandler();
+    private Toolkit toolkit = Toolkit.getDefaultToolkit();
+    private Point hotSpot = new Point(0, 0);
 
     public NetKitGUI(int width, int height) {
         //Establecer el tamaño de la ventana y la escala de la cámara
@@ -71,6 +75,11 @@ public class NetKitGUI extends PSwingCanvas {
         nodeLayer = new PLayer();
         edgeLayer = new PLayer();
         ethLayer = new PLayer();
+
+        // Desactivamos pan y zoom por defecto
+        setPanEventHandler(null);
+        setZoomEventHandler(null);
+        zoomMouse.zoomAboutMouse();
 
         dm.addLayerOnTop(edgeLayer);
         dm.addLayerOnTop(nodeLayer);
@@ -89,9 +98,10 @@ public class NetKitGUI extends PSwingCanvas {
         addHubEventHandler = new AddHubEventHandler(handler);
         deleteNodeEventHandler = new DeleteNodeEventHandler(handler);
         deleteConnectionEventHandler = new DeleteConnectionEventHandler(handler);
-        startNodeEventHandler = new StartNodeEventHandler(handler);
-        stopNodeEventHandler = new StopNodeEventHandler(handler);
-        restartNodeEventHandler = new RestartNodeEventHandler(handler);
+        startNodeEventHandler = new StartNodeEventHandler(this);
+        stopNodeEventHandler = new StopNodeEventHandler(this);
+        restartNodeEventHandler = new RestartNodeEventHandler(this);
+        
         //inicializamos el threads que se encargar� de actualizar las ips de todas
         //las m�quinas virtuales.
         runDemons();
@@ -116,18 +126,18 @@ public class NetKitGUI extends PSwingCanvas {
         return nodeLayer;
     }
 
-    private void runDemons(){
+    private void runDemons() {
         scan = new ScanIPsDemon(nodeLayer);
         scan.start();
-        
+
         scanRouters = new ScanRoutersDemon(nodeLayer);
         scanRouters.start();
     }
-    
+
     /**
      * **************************************************************
      * Guarda el proyecto actual
-	 ***************************************************************
+     * **************************************************************
      */
     public void saveProject(File file) {
         String fileName = file.getPath();
@@ -138,7 +148,7 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Abre un proyecto anterior
-	 ***************************************************************
+     * **************************************************************
      */
     public void openProject(File file) {
         String fileName = file.getPath();
@@ -149,11 +159,10 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Establece el modo selecci�n
-	 ***************************************************************
+     * **************************************************************
      */
     public void enableSelectMode() {
         if (!normalHandlerEnabled) {
-            enableNormalInputEventHandler();
             disableConectedInputEventHandler();
             disableAddTerminalInputEventHandler();
             disableAddRouterInputEventHandler();
@@ -163,14 +172,60 @@ public class NetKitGUI extends PSwingCanvas {
             disableStartNodeInputEventHandler();
             disableStopNodeInputEventHandler();
             disableRestartNodeInputEventHandler();
+            disablePanEventHandler();
+            disableZoomEventHandler();
+            enableNormalInputEventHandler();            
+        }
+    }
 
+    /**
+     * **************************************************************
+     * Establece el modo movimiento
+     * **************************************************************
+     */
+    public void enableMoveMode() {
+        if (!moveHandlerEnabled) {
+            disableNormalInputEventHandler();
+            disableConectedInputEventHandler();
+            disableAddTerminalInputEventHandler();
+            disableAddRouterInputEventHandler();
+            disableAddSwitchInputEventHandler();
+            disableAddHubInputEventHandler();
+            disableDeleteInputEventHandler();
+            disableStartNodeInputEventHandler();
+            disableStopNodeInputEventHandler();
+            disableRestartNodeInputEventHandler();
+            disableZoomEventHandler();
+            enablePanEventHandler();            
+        }
+    }
+
+    /**
+     * **************************************************************
+     * Establece el modo zoom
+     * **************************************************************
+     */
+    public void enableZoomMode() {
+        if (!zoomHandlerEnabled) {
+            disablePanEventHandler();
+            disableNormalInputEventHandler();
+            disableConectedInputEventHandler();
+            disableAddTerminalInputEventHandler();
+            disableAddRouterInputEventHandler();
+            disableAddSwitchInputEventHandler();
+            disableAddHubInputEventHandler();
+            disableDeleteInputEventHandler();
+            disableStartNodeInputEventHandler();
+            disableStopNodeInputEventHandler();
+            disableRestartNodeInputEventHandler();
+            enableZoomEventHandler();            
         }
     }
 
     /**
      * **************************************************************
      * Arranca netkit. Devuelve el numero de m�quinas arrancadas
-	 ***************************************************************
+     * **************************************************************
      */
     public int startNetKit() {
         int started = 0;
@@ -192,7 +247,7 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Detiene la ejecuci�n de netkit. Devuelve el numero de m�quinas paradas
-	 ***************************************************************
+     * **************************************************************
      */
     public int stopNetKit() {
         int stopped = 0;
@@ -213,12 +268,11 @@ public class NetKitGUI extends PSwingCanvas {
 
     /**
      * **************************************************************
-     * Inserta un nodo en Player actual
-	 ***************************************************************
+     * Elimina un nodo en Player actual
+     * **************************************************************
      */
     public void deleteElement() {
         if (!deleteHandlerdEnabled) {
-            enableDeleteInputEventHandler();
             disableAddTerminalInputEventHandler();
             disableConectedInputEventHandler();
             disableNormalInputEventHandler();
@@ -228,17 +282,19 @@ public class NetKitGUI extends PSwingCanvas {
             disableStartNodeInputEventHandler();
             disableStopNodeInputEventHandler();
             disableRestartNodeInputEventHandler();
+            disablePanEventHandler();
+            disableZoomEventHandler();
+            enableDeleteInputEventHandler();            
         }
     }
 
     /**
      * **************************************************************
      * Arranca un nodo en Player actual
-	 ***************************************************************
+     * **************************************************************
      */
     public void startNode() {
         if (!startNodeHandlerEnabled) {
-            enableStartNodeInputEventHandler();
             disableStopNodeInputEventHandler();
             disableRestartNodeInputEventHandler();
             disableAddTerminalInputEventHandler();
@@ -248,17 +304,19 @@ public class NetKitGUI extends PSwingCanvas {
             disableAddSwitchInputEventHandler();
             disableAddHubInputEventHandler();
             disableDeleteInputEventHandler();
+            disablePanEventHandler();
+            disableZoomEventHandler();
+            enableStartNodeInputEventHandler();            
         }
     }
 
     /**
      * **************************************************************
      * Apaga un nodo en Player actual
-	 ***************************************************************
+     * **************************************************************
      */
     public void stopNode() {
         if (!stopNodeHandlerEnabled) {
-            enableStopNodeInputEventHandler();
             disableStartNodeInputEventHandler();
             disableRestartNodeInputEventHandler();
             disableAddTerminalInputEventHandler();
@@ -268,17 +326,19 @@ public class NetKitGUI extends PSwingCanvas {
             disableAddSwitchInputEventHandler();
             disableAddHubInputEventHandler();
             disableDeleteInputEventHandler();
+            disablePanEventHandler();
+            disableZoomEventHandler();
+            enableStopNodeInputEventHandler();
         }
     }
 
     /**
      * **************************************************************
      * Rearranca un nodo en Player actual
-	 ***************************************************************
+     * **************************************************************
      */
     public void restartNode() {
         if (!restartNodeHandlerEnabled) {
-            enableRestartNodeInputEventHandler();
             disableStartNodeInputEventHandler();
             disableStopNodeInputEventHandler();
             disableAddTerminalInputEventHandler();
@@ -288,17 +348,19 @@ public class NetKitGUI extends PSwingCanvas {
             disableAddSwitchInputEventHandler();
             disableAddHubInputEventHandler();
             disableDeleteInputEventHandler();
+            disablePanEventHandler();
+            disableZoomEventHandler();
+            enableRestartNodeInputEventHandler();            
         }
     }
 
     /**
      * **************************************************************
      * Inserta un terminal en la escena
-	 ***************************************************************
+     * **************************************************************
      */
     public void addTerminal() {
         if (!addTerminalHandlerdEnabled) {
-            enableAddTerminalInputEventHandler();
             disableConectedInputEventHandler();
             disableNormalInputEventHandler();
             disableAddRouterInputEventHandler();
@@ -308,17 +370,19 @@ public class NetKitGUI extends PSwingCanvas {
             disableStartNodeInputEventHandler();
             disableStopNodeInputEventHandler();
             disableRestartNodeInputEventHandler();
+            disablePanEventHandler();
+            disableZoomEventHandler();
+            enableAddTerminalInputEventHandler();            
         }
     }
 
     /**
      * **************************************************************
      * Inserta un router en la escena
-	 ***************************************************************
+     * **************************************************************
      */
     public void addRouter() {
         if (!addRouterHandlerdEnabled) {
-            enableAddRouterInputEventHandler();
             disableConectedInputEventHandler();
             disableNormalInputEventHandler();
             disableAddTerminalInputEventHandler();
@@ -328,17 +392,19 @@ public class NetKitGUI extends PSwingCanvas {
             disableStartNodeInputEventHandler();
             disableStopNodeInputEventHandler();
             disableRestartNodeInputEventHandler();
+            disablePanEventHandler();
+            disableZoomEventHandler();
+            enableAddRouterInputEventHandler();            
         }
     }
 
     /**
      * **************************************************************
      * Inserta un switch en la escena
-	 ***************************************************************
+     * **************************************************************
      */
     public void addSwitch() {
         if (!addSwitchHandlerdEnabled) {
-            enableAddSwitchInputEventHandler();
             disableConectedInputEventHandler();
             disableNormalInputEventHandler();
             disableAddTerminalInputEventHandler();
@@ -348,17 +414,19 @@ public class NetKitGUI extends PSwingCanvas {
             disableStartNodeInputEventHandler();
             disableStopNodeInputEventHandler();
             disableRestartNodeInputEventHandler();
+            disablePanEventHandler();
+            disableZoomEventHandler();
+            enableAddSwitchInputEventHandler();            
         }
     }
 
     /**
      * **************************************************************
      * Inserta un hub en la escena
-	 ***************************************************************
+     * **************************************************************
      */
     public void addHub() {
         if (!addHubHandlerdEnabled) {
-            enableAddHubInputEventHandler();
             disableAddTerminalInputEventHandler();
             disableAddRouterInputEventHandler();
             disableAddSwitchInputEventHandler();
@@ -368,21 +436,20 @@ public class NetKitGUI extends PSwingCanvas {
             disableStartNodeInputEventHandler();
             disableStopNodeInputEventHandler();
             disableRestartNodeInputEventHandler();
+            disablePanEventHandler();
+            disableZoomEventHandler();
+            enableAddHubInputEventHandler();            
         }
     }
 
     /**
      * **************************************************************
      * Crea una conexion entre dos nodos de la escena
-	 ***************************************************************
+     * **************************************************************
      */
     public void addConexion() {
         if (!conectedHandlerdEnabled) {
-            //Activamos el manejador para conectarlos
-            enableConectedInputEventHandler();
-            //Desconectamos los eventos para arrastrar y mover nodos
             disableNormalInputEventHandler();
-            //Desconectamos los eventos para a�adir nodos
             disableAddTerminalInputEventHandler();
             disableAddRouterInputEventHandler();
             disableAddSwitchInputEventHandler();
@@ -391,13 +458,16 @@ public class NetKitGUI extends PSwingCanvas {
             disableStartNodeInputEventHandler();
             disableStopNodeInputEventHandler();
             disableRestartNodeInputEventHandler();
+            disablePanEventHandler();
+            disableZoomEventHandler();
+            enableConectedInputEventHandler();
         }
     }
 
     /**
      * **************************************************************
      * Crea una conexion entre dos nodos de la escena
-	 ***************************************************************
+     * **************************************************************
      */
     public void centerView() {
         getCamera().animateViewToCenterBounds(nodeLayer.getUnionOfChildrenBounds(null), false, (long) 1500.0);
@@ -406,7 +476,7 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Activa un nuevo manejador de eventos para el PCanvas
-	 ***************************************************************
+     * **************************************************************
      */
     private void enableNormalInputEventHandler() {
         nodeLayer.addInputEventListener(normalEventHandler);
@@ -415,8 +485,36 @@ public class NetKitGUI extends PSwingCanvas {
 
     /**
      * **************************************************************
+     * Activa el manejador de eventos para mover la escena
+     * **************************************************************
+     */
+    private void enablePanEventHandler() {
+        setPanEventHandler(new PanEventHandler(this));
+        Image image = toolkit.getImage(System.getProperty("NETLAB_HOME") + "/images/32x32/open_hand.png");
+        Cursor cursor = toolkit.createCustomCursor(image, hotSpot, "openHand");
+        setCursor(cursor);
+//        setCursor(new Cursor(Cursor.HAND_CURSOR));
+        moveHandlerEnabled = true;
+    }
+
+    /**
+     * **************************************************************
+     * Activa el manejador de eventos para dar zoom a la escena
+     * **************************************************************
+     */
+    private void enableZoomEventHandler() {
+        addInputEventListener(zoomMouse);
+        Image image = toolkit.getImage(System.getProperty("NETLAB_HOME") + "/images/32x32/lupa.png");
+        Cursor cursor = toolkit.createCustomCursor(image, hotSpot, "lupa");
+        setCursor(cursor);
+//        setCursor(new Cursor(Cursor.HAND_CURSOR));
+        zoomHandlerEnabled = true;
+    }
+
+    /**
+     * **************************************************************
      * Activa el manejador de eventos para a�adir terminales
-	 ***************************************************************
+     * **************************************************************
      */
     private void enableAddTerminalInputEventHandler() {
         addInputEventListener(addTerminalEventHandler);
@@ -426,7 +524,7 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Activa el manejador de eventos para a�adir routers
-	 ***************************************************************
+     * **************************************************************
      */
     private void enableAddRouterInputEventHandler() {
         addInputEventListener(addRouterEventHandler);
@@ -436,7 +534,7 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Activa el manejador de eventos para a�adir switches
-	 ***************************************************************
+     * **************************************************************
      */
     private void enableAddSwitchInputEventHandler() {
         addInputEventListener(addSwitchEventHandler);
@@ -446,7 +544,7 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Activa el manejador de eventos para a�adir hubs
-	 ***************************************************************
+     * **************************************************************
      */
     private void enableAddHubInputEventHandler() {
         addInputEventListener(addHubEventHandler);
@@ -456,7 +554,7 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Activa un nuevo manejador de eventos para el PCanvas
-	 ***************************************************************
+     * **************************************************************
      */
     private void enableConectedInputEventHandler() {
         addInputEventListener(conectedEventHandler);
@@ -466,7 +564,7 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Activa el manejador de eventos para eliminar elementos
-	 ***************************************************************
+     * **************************************************************
      */
     private void enableDeleteInputEventHandler() {
         edgeLayer.addInputEventListener(deleteConnectionEventHandler);
@@ -477,7 +575,7 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Activa el manejador de eventos para iniciar nodos
-	 ***************************************************************
+     * **************************************************************
      */
     private void enableStartNodeInputEventHandler() {
         nodeLayer.addInputEventListener(startNodeEventHandler);
@@ -487,7 +585,7 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Activa el manejador de eventos para parar nodos
-	 ***************************************************************
+     * **************************************************************
      */
     private void enableStopNodeInputEventHandler() {
         nodeLayer.addInputEventListener(stopNodeEventHandler);
@@ -497,7 +595,7 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Activa el manejador de eventos para reiniciar nodos
-	 ***************************************************************
+     * **************************************************************
      */
     private void enableRestartNodeInputEventHandler() {
         nodeLayer.addInputEventListener(restartNodeEventHandler);
@@ -507,7 +605,7 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Desactiva el manejador de eventos para el nodeLayer
-	 ***************************************************************
+     * **************************************************************
      */
     private void disableNormalInputEventHandler() {
         nodeLayer.removeInputEventListener(normalEventHandler);
@@ -516,8 +614,32 @@ public class NetKitGUI extends PSwingCanvas {
 
     /**
      * **************************************************************
+     * Desactiva el manejador de eventos para mover la escena
+     * **************************************************************
+     */
+    private void disablePanEventHandler() {
+        if (getPanEventHandler() != null) {
+            setPanEventHandler(null);
+            setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            moveHandlerEnabled = false;
+        }
+    }
+
+    /**
+     * **************************************************************
+     * Desactiva el manejador de eventos para dar zoom a la escena
+     * **************************************************************
+     */
+    private void disableZoomEventHandler() {
+        removeInputEventListener(zoomMouse);
+        setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        zoomHandlerEnabled = false;
+    }
+
+    /**
+     * **************************************************************
      * Desactiva un nuevo manejador de eventos para el PCanvas
-	 ***************************************************************
+     * **************************************************************
      */
     private void disableConectedInputEventHandler() {
         if (conectedHandlerdEnabled) //si hay alguna transacci�n por completar la cancelamos
@@ -531,7 +653,7 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Desactiva el manejador de eventos para a�adir terminales
-	 ***************************************************************
+     * **************************************************************
      */
     private void disableAddTerminalInputEventHandler() {
         removeInputEventListener(addTerminalEventHandler);
@@ -541,7 +663,7 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Desactiva el manejador de eventos para a�adir routers
-	 ***************************************************************
+     * **************************************************************
      */
     private void disableAddRouterInputEventHandler() {
         removeInputEventListener(addRouterEventHandler);
@@ -551,7 +673,7 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Desactiva el manejador de eventos para a�adir switches
-	 ***************************************************************
+     * **************************************************************
      */
     private void disableAddSwitchInputEventHandler() {
         removeInputEventListener(addSwitchEventHandler);
@@ -561,7 +683,7 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Desactiva el manejador de eventos para a�adir hubs
-	 ***************************************************************
+     * **************************************************************
      */
     private void disableAddHubInputEventHandler() {
         removeInputEventListener(addHubEventHandler);
@@ -571,7 +693,7 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Desactiva el manejador de eventos para eliminar elementos
-	 ***************************************************************
+     * **************************************************************
      */
     private void disableDeleteInputEventHandler() {
         edgeLayer.removeInputEventListener(deleteConnectionEventHandler);
@@ -582,7 +704,7 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Desactiva el manejador de eventos para arrancar nodos
-	 ***************************************************************
+     * **************************************************************
      */
     private void disableStartNodeInputEventHandler() {
         nodeLayer.removeInputEventListener(startNodeEventHandler);
@@ -592,7 +714,7 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Desactiva el manejador de eventos para parar nodos
-	 ***************************************************************
+     * **************************************************************
      */
     private void disableStopNodeInputEventHandler() {
         nodeLayer.removeInputEventListener(stopNodeEventHandler);
@@ -602,17 +724,17 @@ public class NetKitGUI extends PSwingCanvas {
     /**
      * **************************************************************
      * Desactiva el manejador de eventos para reiniciar nodos
-	 ***************************************************************
+     * **************************************************************
      */
     private void disableRestartNodeInputEventHandler() {
         nodeLayer.removeInputEventListener(restartNodeEventHandler);
         restartNodeHandlerEnabled = false;
     }
-    
+
     /**
      * **************************************************************
      * METODOS PARA PROBAR DISPLAY MANAGER, BORRAR UNA VEZ PROBADOS
-	 ***************************************************************
+     * **************************************************************
      */
     public void showNodeLayer() {
         dm.showLayer(nodeLayer);

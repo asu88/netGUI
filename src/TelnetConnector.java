@@ -128,6 +128,7 @@ public class TelnetConnector {
                 ////TelnetProtocol tp = new TelnetProtocol(ts);
                 Telnet telnet = new Telnet(LOCALHOST, port);
                 telnet.initTelnet();
+//                PermanentChanges.initializeInterfaces(telnet);
                 NodeTelnetCommunicator2.addConnection(node, telnet);
                 return true;
             } catch (Exception e) {

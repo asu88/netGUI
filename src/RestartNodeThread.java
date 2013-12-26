@@ -17,11 +17,11 @@ public class RestartNodeThread extends Thread {
         try {
             // Hay que esperar para que no se mate la nueva
             // instancia de la maquina que se esta arrancando
-            System.out.println("Aborting r1");
-            System.out.println("Waiting 5s for restart " + device.getName() + " ...");
+            NetKitViewer.log.addText("> Aborting " + device.getName());
+            NetKitViewer.log.addText("> Waiting 5s for restart " + device.getName() + " ...");
             Thread.sleep(5000);
 
-            System.out.println("Restarting " + device.getName());
+            NetKitViewer.log.addText("> Restarting " + device.getName());
             device.startNetKit();
         } catch (InterruptedException ex) {
             Logger.getLogger(RestartNodeThread.class.getName()).log(Level.SEVERE, null, ex);
